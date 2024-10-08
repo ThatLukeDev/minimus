@@ -1,4 +1,4 @@
 void main() {
-	char* console = 0xb8000;
-	*console = "Hello World!";
+	char* console = (char*)0xb8000;
+	*console = 'A';
 }
