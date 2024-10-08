@@ -71,3 +71,10 @@ start_kernel:
 kernel:
 	call KERNEL_OFFSET	; hand control to kernel
 	jmp $			; return -> error, loop
+
+; padding
+times 510 - ($-$$)
+db 0
+
+; boot signature
+dw 0xaa55
