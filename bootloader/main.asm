@@ -73,8 +73,7 @@ kernel:
 	jmp $			; return -> error, loop
 
 ; padding
-times 510 - ($-$$)
-db 0
+times 510 - ($-$$) db 0
 
 ; boot signature
 dw 0xaa55
