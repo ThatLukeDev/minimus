@@ -19,3 +19,21 @@ int 0x13		; call
 jc $			; carry bit stores error, loop
 cmp al, dh		; al is sectors read
 jne $			; if al isnt sectors read, loop
+
+; segment descriptor (https://en.wikipedia.org/wiki/Segment_descriptor) (reverse order)
+gdt_start:
+	dq 0		; null byte start
+gdt_code:
+	dw 0xffff	; segment limit
+	db 0,0,0	; segment base
+	db 0b10011010	; flags (see wiki)
+	db 0b11001111	; 4b flags (see wiki) + seg limit
+	db 0		; segment base
+gdt_data:
+	dw 0xffff	; segment limit
+	db 0,0,0	; segment base
+	db 0b10011010	; flags (see wiki)
+	db 0b11001111	; 4b flags (see wiki) + seg limit
+	db 0		; segment base
+gdt_end:
+	; marker
