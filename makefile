@@ -1,5 +1,5 @@
 os.bin: bootloader/main.elf kernel/main.elf
-	ld -m elf_i386 -o os.bin -no-pie -Ttext 0xc770 bootloader/main.elf kernel/main.elf --oformat binary -T kernel/entry.ld
+	ld -m elf_i386 -o os.bin -no-pie -Ttext 0x7c00 bootloader/main.elf kernel/main.elf --oformat binary -T kernel/entry.ld
 
 bootloader/main.elf: bootloader/main.asm
 	nasm bootloader/main.asm -f elf -o bootloader/main.elf
