@@ -1,4 +1,7 @@
 [bits 32]
 
+section .text
 [extern main]
-call main
+global _start
+_start:
+	call main

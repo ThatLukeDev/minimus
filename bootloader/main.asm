@@ -1,5 +1,5 @@
 [bits 16]			; Real mode
-[org 0x7c00]			; MBR location
+;[org 0x7c00]			; MBR location
 
 KERNEL_OFFSET equ 0x1000	; kernal load location
 
