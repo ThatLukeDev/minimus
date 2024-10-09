@@ -1,5 +1,5 @@
 [bits 16]			; Real mode
-;[org 0x7c00]			; MBR location
+[org 0x7c00]			; MBR location
 
 KERNEL_OFFSET equ 0x1000	; kernal load location
 
@@ -77,3 +77,9 @@ times 510 - ($-$$) db 0
 
 ; boot signature
 dw 0xaa55
+
+; padding
+times 1000 - ($-$$) db 0
+
+; kernel load
+call $$ + 1

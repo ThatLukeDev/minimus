@@ -1,21 +1,18 @@
-os.bin: bootloader/main.elf kernel/main.elf
-	ld -m elf_i386 -o os.bin -no-pie -Ttext 0x7c00 bootloader/main.elf kernel/main.elf --oformat binary -T kernel/entry.ld
+os.bin: bootloader/main.bin kernel/main.bin
+	cat bootloader/main.bin kernel/main.bin > os.bin
 
-bootloader/main.elf: bootloader/main.asm
-	nasm bootloader/main.asm -f elf -o bootloader/main.elf
-
-kernel/entry.o: kernel/entry.asm
-	nasm kernel/entry.asm -f elf -o kernel/entry.o
+bootloader/main.bin: bootloader/main.asm
+	nasm bootloader/main.asm -f bin -o bootloader/main.bin
 
 kernel/main.o: kernel/main.c
-	gcc -m32 -ffreestanding -fno-PIC -c kernel/main.c -o kernel/main.o
+	gcc -m32 -ffreestanding -c kernel/main.c -o kernel/main.o -fno-pic
 
-kernel/main.elf: kernel/entry.o kernel/main.o
-	ld -m elf_i386 -o kernel/main.elf -no-pie -Ttext 0x1000 kernel/entry.o kernel/main.o -T kernel/entry.ld
+kernel/main.bin: kernel/main.o
+	objcopy -O binary -j .text kernel/main.o kernel/main.bin
 
 .PHONY: clean
 clean:
-	rm bootloader/*.elf
+	rm bootloader/*.bin
 	rm kernel/*.o
-	rm kernel/*.elf
+	rm kernel/*.bin
 	rm *.bin
