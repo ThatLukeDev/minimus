@@ -34,7 +34,7 @@ gdt_code:
 gdt_data:
 	dw 0xffff	; segment limit
 	db 0,0,0	; segment base
-	db 0b10011010	; flags (see wiki)
+	db 0b10010010	; flags (see wiki)
 	db 0b11001111	; 4b flags (see wiki) + seg limit
 	db 0		; segment base
 gdt_end:
@@ -49,6 +49,7 @@ mov eax, cr0
 or eax, 1		; set 1 bit in control register
 mov cr0, eax		; enables protected mode
 pop eax
+times 2 popa
 
 ; stall cpu and flush all cache (as moving to different segment)
 jmp (gdt_code - gdt_start):start_kernel
@@ -62,8 +63,7 @@ start_kernel:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	;mov ss, ax		;
-	;hlt
+	mov ss, ax
 
 	; stack pointers
 	mov esp, 0x9000		; top of stack
@@ -73,6 +73,7 @@ start_kernel:
 
 ; kernel
 kernel:
+	hlt			; testing
 	call KERNEL_OFFSET	; hand control to kernel
 	jmp START		; return -> error, loop
 
