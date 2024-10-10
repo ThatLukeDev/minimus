@@ -3,6 +3,11 @@ bits 16				; real mode
 
 KERNEL_OFFSET equ 0x1000	; kernal load location
 
+cli
+mov al, "A"
+mov ah, 0x0e
+int 0x10
+
 ; stack pointers
 mov sp, 0x9000		; top of stack
 mov bp, 0x9000		; bottom of stack
