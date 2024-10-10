@@ -1,5 +1,5 @@
-[bits 16]			; Real mode
-[org 0x7c00]			; MBR location
+org 0x7c00			; memory load location
+bits 16				; real mode
 
 KERNEL_OFFSET equ 0x1000	; kernal load location
 
@@ -16,9 +16,9 @@ mov al, 2		; num sectors
 mov ch, 0x00		; cylinder
 mov dh, 0x00		; head
 int 0x13		; call
-jc $			; carry bit stores error, loop
+jc $$			; carry bit stores error, loop
 cmp al, dh		; al is sectors read
-jne $			; if al isnt sectors read, loop
+jne $$			; if al isnt sectors read, loop
 
 ; segment descriptor (https://en.wikipedia.org/wiki/Segment_descriptor) (reverse order)
 gdt_start:
@@ -51,7 +51,7 @@ pop eax
 jmp (gdt_code - gdt_start):start_kernel
 
 ; finally 32 bits
-[bits 32]
+bits 32
 start_kernel:
 	; segment registers init
 	mov ax, gdt_data - gdt_start
@@ -70,16 +70,16 @@ start_kernel:
 ; kernel
 kernel:
 	call KERNEL_OFFSET	; hand control to kernel
-	jmp $			; return -> error, loop
+	jmp $$			; return -> error, loop
 
 ; padding
 times 510 - ($-$$) db 0
 
 ; boot signature
-dw 0xaa55
+db 0x55,0xaa
 
 ; padding
 times 1000 - ($-$$) db 0
 
 ; kernel load
-call $$ + 1
+call $ + 1
