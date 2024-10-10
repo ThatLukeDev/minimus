@@ -2,11 +2,7 @@ org 0x7c00			; memory load location
 bits 16				; real mode
 
 KERNEL_OFFSET equ 0x1000	; kernal load location
-
-cli
-mov al, "A"
-mov ah, 0x0e
-int 0x10
+START equ 0x7c00
 
 ; stack pointers
 mov sp, 0x9000		; top of stack
@@ -14,16 +10,17 @@ mov bp, 0x9000		; bottom of stack
 
 ; read kernel
 mov bx, KERNEL_OFFSET	; destination
-; mov dl, [DISK]	; disk already in dl
 mov ah, 0x02		; set read mode
-mov cl, 0x02		; start from sec 2 (sec 1 is boot, sec 2 is kernel)
+mov cl, 2		; start from sec 2 (sec 1 is boot, sec 2 is kernel)
 mov al, 2		; num sectors
-mov ch, 0x00		; cylinder
-mov dh, 0x00		; head
+mov ch, 0		; cylinder
+mov dh, 0		; head
 int 0x13		; call
-jc $$			; carry bit stores error, loop
-cmp al, dh		; al is sectors read
-jne $$			; if al isnt sectors read, loop
+jc START		; carry bit stores error, loop
+cmp al, 2		; al is sectors read
+jne START		; if all sectors arent read, loop
+
+jmp gdt_after
 
 ; segment descriptor (https://en.wikipedia.org/wiki/Segment_descriptor) (reverse order)
 gdt_start:
@@ -52,6 +49,7 @@ mov eax, cr0
 or eax, 1		; set 1 bit in control register
 mov cr0, eax		; enables protected mode
 pop eax
+
 ; stall cpu and flush all cache (as moving to different segment)
 jmp (gdt_code - gdt_start):start_kernel
 
@@ -64,7 +62,8 @@ start_kernel:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	mov ss, ax
+	;mov ss, ax		;
+	;hlt
 
 	; stack pointers
 	mov esp, 0x9000		; top of stack
@@ -75,7 +74,7 @@ start_kernel:
 ; kernel
 kernel:
 	call KERNEL_OFFSET	; hand control to kernel
-	jmp $$			; return -> error, loop
+	jmp START		; return -> error, loop
 
 ; padding
 times 510 - ($-$$) db 0
