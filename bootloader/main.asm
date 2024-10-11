@@ -3,10 +3,6 @@
 
 KERNEL_SEGS equ 2	; KERNEL_SEGS is in segments, where each segment is 512 bytes
 
-; stack pointers
-mov sp, 0x9000		; top of stack
-mov bp, 0x9000		; bottom of stack
-
 ; read kernel (https://en.wikipedia.org/wiki/INT_13H)
 mov bx, 0x7e00		; offset
 mov ah, 0x02		; set read mode
@@ -52,7 +48,7 @@ mov eax, cr0
 or eax, 1		; set 1 bit in control register for protected mode
 mov cr0, eax
 
-; stall cpu and flush all cache (as moving to different segment)
+; stall cpu and flush all cache (as moving to different segment) to finalize protected mode
 jmp (gdt_code - gdt_start):start_kernel
 
 ; finally 32 bits
@@ -94,5 +90,5 @@ db 0x55,0xaa
 
 ; kernel load
 call kernel_cseg
-jmp $
-kernel_cseg:
+jmp $				; temporary for testing
+kernel_cseg:			; compiled c appeneded here
