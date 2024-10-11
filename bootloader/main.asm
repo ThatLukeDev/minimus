@@ -84,5 +84,6 @@ times 510 - ($-$$) db 0
 db 0x55,0xaa
 
 ; kernel load
+call kernel_cseg
 hlt
-jmp $ + 2
+kernel_cseg:
