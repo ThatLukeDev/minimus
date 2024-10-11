@@ -85,5 +85,5 @@ db 0x55,0xaa
 
 ; kernel load
 call kernel_cseg
-hlt
+jmp $
 kernel_cseg:
