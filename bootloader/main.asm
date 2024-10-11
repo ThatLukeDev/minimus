@@ -1,18 +1,19 @@
-org 0x7c00			; memory load location
-bits 16				; real mode
+[org 0x7c00]			; memory load location
+[bits 16]			; real mode
 
-KERNEL_OFFSET equ 0x1000	; kernal load location
+KERNEL_OFFSET equ 0x7e00	; kernal load location
 START equ 0x7c00
 
 ; stack pointers
 mov sp, 0x9000		; top of stack
 mov bp, 0x9000		; bottom of stack
 
-; read kernel
-mov bx, KERNEL_OFFSET	; destination
+; read kernel (https://en.wikipedia.org/wiki/INT_13H)
+cld			; clear args
+mov bx, KERNEL_OFFSET	; offset
 mov ah, 0x02		; set read mode
 mov cl, 2		; start from sec 2 (sec 1 is boot, sec 2 is kernel)
-mov al, 2		; num sectors
+mov al, 2		; sectors to read
 mov ch, 0		; cylinder
 mov dh, 0		; head
 int 0x13		; call
@@ -55,7 +56,7 @@ times 2 popa
 jmp (gdt_code - gdt_start):start_kernel
 
 ; finally 32 bits
-bits 32
+[bits 32]
 start_kernel:
 	; segment registers init
 	mov ax, gdt_data - gdt_start
@@ -73,8 +74,7 @@ start_kernel:
 
 ; kernel
 kernel:
-	hlt			; testing
-	call KERNEL_OFFSET	; hand control to kernel
+	jmp KERNEL_OFFSET	; hand control to kernel
 	jmp START		; return -> error, loop
 
 ; padding
@@ -83,8 +83,6 @@ times 510 - ($-$$) db 0
 ; boot signature
 db 0x55,0xaa
 
-; padding
-times 1000 - ($-$$) db 0
-
 ; kernel load
-call $ + 1
+hlt
+jmp $ + 2

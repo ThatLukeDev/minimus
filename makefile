@@ -9,15 +9,19 @@ bootloader/main.bin: bootloader/main.asm
 	nasm bootloader/main.asm -f bin -o bootloader/main.bin
 
 kernel/main.o: kernel/main.c
-	gcc -m32 -ffreestanding -c kernel/main.c -o kernel/main.o -fno-pic
+	gcc -m32 -ffreestanding -c kernel/main.c -o kernel/main.o -fno-PIC
 
-kernel/main.bin: kernel/main.o
-	objcopy -I binary -O elf32-i386 -j .text kernel/main.o kernel/main.bin
+kernel/main.elf: kernel/main.o
+	ld -m elf_i386 kernel/main.o -o kernel/main.elf
+
+kernel/main.bin: kernel/main.elf
+	objcopy -O binary -j .text kernel/main.elf kernel/main.bin
 
 .PHONY: clean
 clean:
 	rm bootloader/*.bin
 	rm kernel/*.o
+	rm kernel/*.elf
 	rm kernel/*.bin
 	rm *.bin
 	rm *.img
