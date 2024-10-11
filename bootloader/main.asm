@@ -48,17 +48,24 @@ int 0x15		; notify bios of protected mode
 
 cli			; disable interrupts
 lgdt [gdt_end]		; gdt_end is descritor table
-push eax		; eax is tmp var
 mov eax, cr0
 or eax, 1		; set 1 bit in control register for protected mode
 mov cr0, eax
-pop eax			; get back eax
 
 ; stall cpu and flush all cache (as moving to different segment)
 jmp (gdt_code - gdt_start):start_kernel
 
 ; finally 32 bits
 [bits 32]
+
+mov ecx, 0xc0000080	; extended feature enable register
+rdmsr			; read model specific register
+or eax, 0b100000000	; set long mode bit
+wrmsr			; write model specific register
+mov eax, cr0
+or eax, 1 << 31		; set pg bit
+mov cr0, eax		; we are in compatibility mode
+
 start_kernel:
 	; segment registers init
 	mov ax, gdt_data - gdt_start
