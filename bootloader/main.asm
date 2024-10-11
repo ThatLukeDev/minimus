@@ -1,25 +1,23 @@
-[org 0x7c00]			; memory load location
-[bits 16]			; real mode
+[org 0x7c00]		; memory load location
+[bits 16]		; real mode
 
-KERNEL_OFFSET equ 0x7e00	; kernal load location
-START equ 0x7c00
+KERNEL_SEGS equ 2	; KERNEL_SEGS is in segments, where each segment is 512 bytes
 
 ; stack pointers
 mov sp, 0x9000		; top of stack
 mov bp, 0x9000		; bottom of stack
 
 ; read kernel (https://en.wikipedia.org/wiki/INT_13H)
-cld			; clear args
-mov bx, KERNEL_OFFSET	; offset
+mov bx, 0x7e00		; offset
 mov ah, 0x02		; set read mode
 mov cl, 2		; start from sec 2 (sec 1 is boot, sec 2 is kernel)
-mov al, 2		; sectors to read
+mov al, KERNEL_SEGS	; sectors to read
 mov ch, 0		; cylinder
 mov dh, 0		; head
 int 0x13		; call
-jc START		; carry bit stores error, loop
-cmp al, 2		; al is sectors read
-jne START		; if all sectors arent read, loop
+jc $$			; carry bit stores error, loop
+cmp al, KERNEL_SEGS	; al is sectors read
+jne $$			; if all sectors arent read, loop
 
 jmp gdt_after
 
@@ -43,14 +41,18 @@ gdt_end:
 	dd gdt_start			; addr (actually 24 bit, 8 ignored)
 gdt_after:
 
+cli
+mov ax, 0xec00
+mov bl, 1		; 1 is 32 bit, 2 is 64 bit
+int 0x15		; notify bios of protected mode
+
 cli			; disable interrupts
 lgdt [gdt_end]		; gdt_end is descritor table
-push eax		; eax is tmp
+push eax		; eax is tmp var
 mov eax, cr0
-or eax, 1		; set 1 bit in control register
-mov cr0, eax		; enables protected mode
-pop eax
-times 2 popa
+or eax, 1		; set 1 bit in control register for protected mode
+mov cr0, eax
+pop eax			; get back eax
 
 ; stall cpu and flush all cache (as moving to different segment)
 jmp (gdt_code - gdt_start):start_kernel
@@ -74,8 +76,8 @@ start_kernel:
 
 ; kernel
 kernel:
-	jmp KERNEL_OFFSET	; hand control to kernel
-	jmp START		; return -> error, loop
+	jmp 0x7e00		; hand control to kernel
+	jmp $$			; return -> error, loop
 
 ; padding
 times 510 - ($-$$) db 0
