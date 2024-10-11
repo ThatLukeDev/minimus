@@ -1,1 +1,1 @@
-make && qemu-system-i386 -fda os.img & vncviewer 127.0.0.1:5900 && killall qemu-system-i386
+make && qemu-system-i386 -fda bin/os.img & vncviewer 127.0.0.1:5900 && killall qemu-system-i386

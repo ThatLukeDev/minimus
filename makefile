@@ -1,27 +1,25 @@
-os.img: os.bin
-	dd if=/dev/zero of=os.img count=2280
-	dd if=os.bin of=os.img conv=notrunc
+bin/os.img: bin bin/os.bin
+	dd if=/dev/zero of=bin/os.img count=2280
+	dd if=bin/os.bin of=bin/os.img conv=notrunc
 
-os.bin: bootloader.bin kernel.bin
-	cat bootloader.bin kernel.bin > os.bin
+bin/os.bin: bin/bootloader.bin bin/kernel.bin
+	cat bin/bootloader.bin bin/kernel.bin > bin/os.bin
 
-bootloader.bin: bootloader/main.asm
-	nasm bootloader/main.asm -f bin -o bootloader.bin
+bin/bootloader.bin: bootloader/main.asm
+	nasm bootloader/main.asm -f bin -o bin/bootloader.bin
 
-kernel.o: kernel/main.c
-	gcc -m32 -ffreestanding -c kernel/main.c -o kernel.o -fno-PIC
+bin/kernel.o: kernel/main.c
+	gcc -m32 -ffreestanding -c kernel/main.c -o bin/kernel.o -fno-PIC
 
-kernel.elf: kernel.o
-	ld -m elf_i386 kernel.o -o kernel.elf
+bin/kernel.elf: bin/kernel.o
+	ld -m elf_i386 bin/kernel.o -o bin/kernel.elf
 
-kernel.bin: kernel.elf
-	objcopy -O binary -j .text kernel.elf kernel.bin
+bin/kernel.bin: bin/kernel.elf
+	objcopy -O binary -j .text bin/kernel.elf bin/kernel.bin
+
+bin:
+	mkdir bin
 
 .PHONY: clean
 clean:
-	rm bootloader.bin
-	rm kernel.o
-	rm kernel.elf
-	rm kernel.bin
-	rm os.bin
-	rm os.img
+	rm bin/*
