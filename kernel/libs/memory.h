@@ -1,7 +1,13 @@
 #ifndef LIB_MEMORY
 #define LIB_MEMORY
 
+void initheap();
+
 void* malloc(unsigned int size);
+int free(void* ptr);
+void* calloc(unsigned int size, unsigned int n);
+void* realloc(void* ptr, unsigned int size);
+
 int __stack_chk_fail();
 
 // required by gcc

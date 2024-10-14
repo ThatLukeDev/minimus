@@ -1,5 +1,87 @@
+struct memchunk {
+	struct memchunk* prev;
+	struct memchunk* next;
+	unsigned int size;
+	char occupied;
+};
+
+struct memchunk* heap = (struct memchunk*)0x10000;
+void initheap() {
+	heap->size = 100000; // temporary
+	heap->occupied = 0;
+}
+
 void* malloc(unsigned int size) {
-	return (void*)0x10000; // temporary
+	struct memchunk* check = heap;
+	do {
+		if (check->size > size + 16 && !check->occupied) {
+			struct memchunk* nextchunk = check + size + 16;
+
+			nextchunk->size = check->size - size - 16;
+			nextchunk->prev = check;
+			nextchunk->next = check->next;
+			nextchunk->occupied = 0;
+
+			check->prev = 0;
+			check->next = nextchunk;
+			check->size = size + 16;
+			check->occupied = 1;
+
+			return check + 16;
+		}
+
+		check = check->next;
+	} while (check);
+	return 0;
+}
+
+struct memchunk* m_memchunkstartfreesegment(struct memchunk* check) {
+	if (check->prev && !check->prev->occupied)
+		return m_memchunkstartfreesegment(check->prev);
+	return check;
+}
+
+int free(void* ptr) {
+	struct memchunk* check = ptr - 16;
+
+	if ((check->prev && check->prev->next != check) || (check->next && check->next->prev != check)) {
+		return 1;
+	}
+
+	check->occupied = 0;
+
+	check = m_memchunkstartfreesegment(check);
+	while (check->next && !check->next->occupied) {
+		check->size += check->next->size;
+		check->next = check->next->next;
+	}
+	if (check->next)
+		check->next->prev = check;
+
+	return 0;
+}
+
+void* realloc(void* ptr, unsigned int size) { // temporary (slow)
+	void* _ptr = malloc(size);
+
+	for (unsigned int i = 0; i < size; i++) {
+		*((char*)_ptr+i) = *((char*)ptr+i);
+	}
+
+	free(ptr);
+
+	return _ptr;
+}
+
+void* calloc(unsigned int size, unsigned int n) {
+	int len = size * n;
+	void* ret = malloc(len);
+
+	for (unsigned int i = 0; i < len; i++) {
+		*((char*)ret+i) = 0;
+	}
+
+	return ret;
 }
 
 int __stack_chk_fail() {

@@ -2,10 +2,9 @@
 #include "console.h"
 
 void main() {
+	initheap();
 	clrscr();
-	char s[3];
-	s[0] = 'H';
-	s[1] = 'i';
-	s[2] = 0;
-	puts(s);
+
+	char str[] = "Hello World!";
+	puts(str);
 }
