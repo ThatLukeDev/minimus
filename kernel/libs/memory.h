@@ -1,6 +1,8 @@
 #ifndef LIB_MEMORY
 #define LIB_MEMORY
 
+void* malloc(unsigned int size);
+
 // required by gcc
 void* memcpy(void* dest, const void* src, unsigned int n);
 void* memset(void* s, int c, unsigned int n);

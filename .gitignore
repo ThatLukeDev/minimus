@@ -1,2 +1,2 @@
 bin/*
-kernel/libs/lib.o
+kernel/libs/*.o

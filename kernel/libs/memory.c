@@ -1,3 +1,8 @@
+void* malloc(unsigned int size) {
+	return (void*)0x10000; // temporary
+}
+
+// required by gcc
 void* memcpy(void* dest, const void* src, unsigned int n) {
 	char* pdest = (char*)dest;
 	char* psrc = (char*)src;
@@ -10,7 +15,7 @@ void* memcpy(void* dest, const void* src, unsigned int n) {
 }
 
 void* memset(void* s, int c, unsigned int n) {
-	char* pdest = (char*)dest;
+	char* pdest = (char*)s;
 
 	for (unsigned int i = 0; i < n; i++) {
 		pdest[i] = (char)c;

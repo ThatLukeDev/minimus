@@ -1,6 +1,11 @@
-lib.o: *.c
-	gcc -m32 -c -o $@ $< -Wno-builtin-declaration-mismatch
+OBJS := $(patsubst %.c,%.o,$(wildcard *.c))
+
+lib.o: $(OBJS)
+	ar cr $@ $^
+
+$(OBJS): %.o: %.c
+	gcc -m32 -c $^ -Wno-builtin-declaration-mismatch -o $@
 
 .PHONY: clean
 clean:
-	rm lib.o
+	rm *.o
