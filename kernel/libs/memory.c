@@ -87,6 +87,9 @@ void* calloc(unsigned int size, unsigned int n) {
 int __stack_chk_fail() {
 	return 0;
 }
+int __stack_chk_fail_local() {
+	return 0;
+}
 
 // required by gcc
 void* memcpy(void* dest, const void* src, unsigned int n) {

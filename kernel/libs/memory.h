@@ -9,6 +9,7 @@ void* calloc(unsigned int size, unsigned int n);
 void* realloc(void* ptr, unsigned int size);
 
 int __stack_chk_fail();
+int __stack_chk_fail_local();
 
 // required by gcc
 void* memcpy(void* dest, const void* src, unsigned int n);

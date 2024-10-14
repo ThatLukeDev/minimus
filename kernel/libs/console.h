@@ -9,4 +9,6 @@ void putc(char c);
 
 void puts(char* s);
 
+void printf(char* str, ...);
+
 #endif
