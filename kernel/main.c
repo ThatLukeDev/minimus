@@ -1,4 +1,10 @@
+#include "console.h"
+
 void main() {
-	*((int*)0xb8000)='A';
-	*((int*)0xb8001)=0x07;
+	clrscr();
+	char* s = "A";
+		putc('a');
+	while (*s != (char)0) {
+		putc('A');
+	}
 }

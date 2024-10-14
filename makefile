@@ -1,25 +1,29 @@
 bin/os.img: bin bin/os.bin
-	dd if=/dev/zero of=bin/os.img count=2280
-	dd if=bin/os.bin of=bin/os.img conv=notrunc
+	dd if=/dev/zero of=$@ count=2280
+	dd if=bin/os.bin of=$@ conv=notrunc
 
 bin/os.bin: bin/bootloader.bin bin/kernel.bin
-	cat bin/bootloader.bin bin/kernel.bin > bin/os.bin
+	cat $^ > $@
 
 bin/bootloader.bin: bootloader/main.asm
-	nasm bootloader/main.asm -f bin -o bin/bootloader.bin
+	nasm $^ -f bin -o $@
 
-bin/kernel.o: kernel/main.c
-	gcc -m32 -ffreestanding -c kernel/main.c -o bin/kernel.o -fno-PIC
+kernel/libs/lib.o:
+	cd kernel/libs && make
 
-bin/kernel.elf: bin/kernel.o
-	ld -m elf_i386 bin/kernel.o -o bin/kernel.elf
+bin/kernel.o: kernel/main.c kernel/libs/lib.o
+	gcc -Ikernel/libs -m32 -ffreestanding -c $< -o $@ -fno-PIC
+
+bin/kernel.elf: bin/kernel.o kernel/libs/lib.o
+	ld -m elf_i386 $^ -o $@
 
 bin/kernel.bin: bin/kernel.elf
-	objcopy -O binary -j .text bin/kernel.elf bin/kernel.bin
+	objcopy -O binary -j .text $^ $@
 
 bin:
-	mkdir bin
+	mkdir $@
 
 .PHONY: clean
 clean:
+	cd kernel/libs && make clean
 	rm bin/*
