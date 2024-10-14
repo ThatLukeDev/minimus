@@ -8,7 +8,7 @@ bin/os.bin: bin/bootloader.bin bin/kernel.bin
 bin/bootloader.bin: bootloader/main.asm
 	nasm $^ -f bin -o $@
 
-kernel/libs/lib.o:
+kernel/libs/lib.o: kernel/libs/*.h kernel/libs/*.c
 	cd kernel/libs && make
 
 bin/kernel.o: kernel/main.c kernel/libs/lib.o
