@@ -2,6 +2,7 @@
 #define LIB_MEMORY
 
 void* malloc(unsigned int size);
+int __stack_chk_fail();
 
 // required by gcc
 void* memcpy(void* dest, const void* src, unsigned int n);

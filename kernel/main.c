@@ -3,9 +3,9 @@
 
 void main() {
 	clrscr();
-	char* s = "Hi";
-		putc('a');
-	while (*s != (char)0) {
-		putc('A');
-	}
+	char s[3];
+	s[0] = 'H';
+	s[1] = 'i';
+	s[2] = 0;
+	puts(s);
 }

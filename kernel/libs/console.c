@@ -14,10 +14,7 @@ void putc(char c) {
 }
 
 void puts(char* s) {
-	putc(s[0]);
-	/*
 	while (*s != 0) {
 		putc(*s++);
 	}
-	*/
 }

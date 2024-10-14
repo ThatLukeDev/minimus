@@ -2,6 +2,10 @@ void* malloc(unsigned int size) {
 	return (void*)0x10000; // temporary
 }
 
+int __stack_chk_fail() {
+	return 0;
+}
+
 // required by gcc
 void* memcpy(void* dest, const void* src, unsigned int n) {
 	char* pdest = (char*)dest;
