@@ -1,5 +1,6 @@
 #define VMEM_START (char*)0xb8000
 #define VMEM_END (char*)0xbfd00
+#define LINE_WIDTH 160
 char* cursor;
 
 void clrscr() {
@@ -15,6 +16,11 @@ void putc(char c) {
 
 void puts(char* s) {
 	while (*s != 0) {
-		putc(*s++);
+		if (*s == '\n') {
+			cursor = (char*)((cursor - VMEM_START) / LINE_WIDTH * LINE_WIDTH + LINE_WIDTH + VMEM_START);
+			s++;
+		}
+		else
+			putc(*s++);
 	}
 }
