@@ -5,6 +5,8 @@ void main() {
 	initheap();
 	clrscr();
 
-	char str[] = "Hello World!";
-	puts(str);
+	char str1[] = "Hello %s!\nNum is %d.";
+	char str2[] = "World";
+	int num = -4123;
+	printf(str1, str2, num);
 }

@@ -12,7 +12,7 @@ kernel/libs/lib.o: kernel/libs/*.h kernel/libs/*.c
 	cd kernel/libs && make
 
 bin/kernel.o: kernel/main.c kernel/libs/lib.o
-	gcc -Ikernel/libs -m32 -ffreestanding -c $< -o $@ -fno-PIC
+	gcc -Ikernel/libs -m32 -ffreestanding -c $< -o $@ -fno-PIC -mno-sse
 
 bin/kernel.elf: bin/kernel.o kernel/libs/lib.o
 	ld -m elf_i386 $^ -o $@
