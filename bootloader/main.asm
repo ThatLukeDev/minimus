@@ -1,7 +1,7 @@
 [org 0x7c00]		; memory load location
 [bits 16]		; real mode
 
-KERNEL_SEGS equ 2	; KERNEL_SEGS is in segments, where each segment is 512 bytes
+KERNEL_SEGS equ 64	; KERNEL_SEGS is in segments, where each segment is 512 bytes
 
 ; read kernel (https://en.wikipedia.org/wiki/INT_13H)
 mov bx, 0x7e00		; offset
