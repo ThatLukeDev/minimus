@@ -4,7 +4,7 @@ lib.o: $(OBJS)
 	ar cr $@ $^
 
 $(OBJS): %.o: %.c
-	gcc -m32 -c $^ -Wno-builtin-declaration-mismatch -o $@ -mno-sse
+	gcc -m32 -c $^ -Wno-builtin-declaration-mismatch -o $@ -mno-sse -mno-red-zone
 
 .PHONY: clean
 clean:
