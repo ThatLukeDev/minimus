@@ -51,6 +51,9 @@ void printf(char* str, ...) {
 				}
 				char buf[100];
 				int i = 0;
+				if (val == 0) {
+					buf[i++] = (char)(val % 10 + 48);
+				}
 				while (val > 0) {
 					buf[i++] = (char)(val % 10 + 48);
 					val /= 10;

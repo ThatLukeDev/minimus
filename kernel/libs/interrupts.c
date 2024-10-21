@@ -27,7 +27,6 @@ void _interrupt() {
 
 void initidt() {
 	idtptr = (struct idtelement*)0x10000;
-	for (int i = 0; i < 255; i++)
-		initidtelement(i, &_interrupt);
-	__asm__("lidt %0" :: "m"(*idtptr)); // temp
+	initidtelement(0, &_interrupt);
+	__asm__("lidt 0x10000"); // temp
 }
