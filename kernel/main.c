@@ -8,5 +8,5 @@ void main() {
 	initidt();
 	//clrscr();
 
-	//int x = 1 / 0;
+	int x = 1 / 0;
 }

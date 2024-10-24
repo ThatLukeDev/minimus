@@ -8,18 +8,25 @@ struct idtelement {
 	unsigned short offset2; // offset 16-31
 };
 
+extern void* idtdescriptor;
+
 // https://en.wikipedia.org/wiki/Interrupt_descriptor_table
 void initidtelement(unsigned int num, void* func) {
-	/*
-	struct idtelement* element = (struct idtelement*)(idtdescriptor->ptr+num*8);
+	struct idtelement* element = (struct idtelement*)((void*)idtdescriptor+num*8);
 	element->base = 0;
 	element->selector = 0x7c27;
 	element->attr = 0x08;//0b10001110;
 	element->offset1 = (unsigned short)((unsigned int)func >> 8);
 	element->offset2 = (unsigned short)((unsigned int)func);
-	*/
 }
 
-void _interrupt() {
+extern void* _idthandler0;
+void _idtfunc0() {
 	printf("Interrupt\n");
+}
+
+extern void initidtasm();
+void initidt() {
+	initidtelement(0, _idthandler0);
+	initidtasm();
 }

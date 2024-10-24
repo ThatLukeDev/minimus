@@ -1,4 +1,4 @@
-global initidt
+global initidtasm
 global interrupthandler
 global idtdescriptor
 
@@ -10,10 +10,13 @@ idtdescriptor:
 
 section .text
 
-initidt:
+initidtasm:
 	lidt [idtdescriptor]
 	ret
 
-interrupthandler:
-	call esp
+
+extern _idtfunc0
+global _idthandler0
+_idthandler0:
+	call _idtfunc0
 	iret
