@@ -3,10 +3,13 @@
 #include "interrupts.h"
 
 void main() {
-	clrscr();
 	initheap();
 	initidt();
-	//clrscr();
+	clrscr();
+
+	printf("a");
 
 	int x = 1 / 0;
+
+	printf("a");
 }
