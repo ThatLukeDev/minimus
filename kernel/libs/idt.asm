@@ -16,13 +16,8 @@ initidtasm:
 	lidt [idtdescriptor]
 	ret
 
-
-extern _idtfunc0
-global _idthandler0
-_idthandler0:
-	jmp 0x7c00	; tmp
-	pusha
-	call _idtfunc0
-	popa
-	add esp, 8
+extern dividezero
+global _dividezero
+_dividezero:
+	call dividezero
 	iret
