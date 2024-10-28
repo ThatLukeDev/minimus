@@ -1,3 +1,8 @@
+#define PIC1 0x20 // master pic
+#define PIC2 0xa0 // slave pic
+
+#include "ioutils.h"
+
 #include "console.h" //temp
 
 struct idtelement {
@@ -18,6 +23,9 @@ void initidtelement(unsigned int num, unsigned int func, unsigned char trap) {
 	element->attr = 0b10001110 | trap;
 	element->offset1 = (unsigned short)(func);
 	element->offset2 = (unsigned short)(func >> 16);
+}
+
+void initpic() {
 }
 
 extern unsigned int _idt0;

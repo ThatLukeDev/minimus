@@ -8,8 +8,4 @@ void main() {
 	clrscr();
 
 	printf("a");
-
-	int x = 2;
-	x = 1 / 0;
-	printf("%d", x);
 }
