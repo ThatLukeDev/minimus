@@ -20,13 +20,13 @@ void initidtelement(unsigned int num, unsigned int func, unsigned char trap) {
 	element->offset2 = (unsigned short)(func >> 16);
 }
 
-extern unsigned int _dividezero;
-void dividezero() {
+extern unsigned int _idt0;
+void idt0() {
 	printf("Interrupt\n");
 }
 
 extern void initidtasm();
 void initidt() {
-	initidtelement(0, (unsigned int)&_dividezero, 0);
+	initidtelement(0, (unsigned int)&_idt0, 1);
 	initidtasm();
 }

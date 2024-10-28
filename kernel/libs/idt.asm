@@ -16,8 +16,12 @@ initidtasm:
 	lidt [idtdescriptor]
 	ret
 
-extern dividezero
-global _dividezero
-_dividezero:
-	call dividezero
-	iret
+%macro idt 1
+	extern idt%1
+	global _idt%1
+	_idt%1:
+		call idt%1
+		iret
+%endmacro
+
+idt 0
