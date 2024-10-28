@@ -24,4 +24,4 @@ initidtasm:
 		iret
 %endmacro
 
-idt 0
+idt 33

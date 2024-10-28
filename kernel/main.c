@@ -3,9 +3,11 @@
 #include "interrupts.h"
 
 void main() {
+	clrscr();
 	initheap();
 	initidt();
-	clrscr();
+	//clrscr();
 
 	printf("a");
+	__asm__ volatile ("int $0x21");
 }
