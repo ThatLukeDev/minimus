@@ -73,6 +73,30 @@ void initpic() {
 	outb(PIC2+1, mask2);
 }
 
+void enablepic(unsigned char irq) {
+	unsigned short port = PIC1+1;
+
+	if (irq >= 8) {
+		port = PIC2+1;
+		irq -= 8;
+	}
+
+	unsigned char val = inb(port) | (1 << irq); // add mask bit (set 1)
+	outb(port, val);
+}
+
+void disablepic(unsigned char irq) {
+	unsigned short port = PIC1+1;
+
+	if (irq >= 8) {
+		port = PIC2+1;
+		irq -= 8;
+	}
+
+	unsigned char val = inb(port) & ~(1 << irq); // remove mask bit (set 0)
+	outb(port, val);
+}
+
 extern unsigned int _idt33;
 void idt33() {
 	printf("Interrupt\n");
@@ -82,6 +106,9 @@ void idt33() {
 extern void initidtasm();
 void initidt() {
 	initpic();
+
 	initidtelement(33, (unsigned int)&_idt33, 0);
+	enablepic(1);
+
 	initidtasm();
 }
