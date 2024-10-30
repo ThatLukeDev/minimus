@@ -2,7 +2,7 @@
 #define PIC2 0xa0 // slave pic
 
 #define PIC1_OFFSET 0x20
-#define PIC2_OFFSET PIC1_OFFSET+8
+#define PIC2_OFFSET (PIC1_OFFSET+8)
 
 #include "ioutils.h"
 
@@ -97,18 +97,39 @@ void disablepic(unsigned char irq) {
 	outb(port, val);
 }
 
+unsigned short irqreg(int cmd) {
+	outb(PIC1, cmd);
+	outb(PIC2, cmd);
+	return (inb(PIC2) << 8) | inb(PIC1);
+}
+
+extern unsigned int _idt32;
+void idt32() {
+	printf("Interrupt\n");
+	sendeoi(32-PIC1_OFFSET);
+}
+
 extern unsigned int _idt33;
 void idt33() {
 	printf("Interrupt\n");
-	sendeoi(33-0x20);
+	sendeoi(33-PIC1_OFFSET);
 }
 
 extern void initidtasm();
 void initidt() {
 	initpic();
 
+	initidtelement(32, (unsigned int)&_idt32, 0);
 	initidtelement(33, (unsigned int)&_idt33, 0);
-	enablepic(1);
 
 	initidtasm();
+
+	enablepic(0);
+	enablepic(1);
+
+	for (int i = 0; i < 1000; i++)
+		iowait();
+
+	printf("%x\n", irqreg(0x0a));
+	printf("%x\n", irqreg(0x0b));
 }
