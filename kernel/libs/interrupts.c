@@ -97,6 +97,8 @@ void disablepic(unsigned char irq) {
 	outb(port, val);
 }
 
+// https://pdos.csail.mit.edu/6.828/2014/readings/hardware/8259A.pdf
+// 4. INTERRUPT REQUEST REGISTER (IRR) AND IN-SERVICE REGISTER (ISR)
 unsigned short irqreg(int cmd) {
 	outb(PIC1, cmd);
 	outb(PIC2, cmd);
@@ -127,7 +129,7 @@ void initidt() {
 	enablepic(0);
 	enablepic(1);
 
-	for (int i = 0; i < 1000; i++)
+	for (int i = 0; i < 100000; i++)
 		iowait();
 
 	printf("%x\n", irqreg(0x0a));
