@@ -83,6 +83,22 @@ void printf(char* str, ...) {
 				for (i--; i >= 0; i--)
 					putc(buf[i]);
 			}
+			else if (*str == 'b') {
+				unsigned int val = va_arg(ap, unsigned int);
+				char buf[100];
+				int i = 0;
+				if (val == 0) {
+					unsigned char vmod = val % 2;
+					buf[i++] = (char)(vmod + 48);
+				}
+				while (val > 0) {
+					unsigned char vmod = val % 2;
+					buf[i++] = (char)(vmod + 48);
+					val >>= 1;
+				}
+				for (i--; i >= 0; i--)
+					putc(buf[i]);
+			}
 		}
 		else {
 			putc(*str);

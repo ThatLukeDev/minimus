@@ -37,6 +37,9 @@ void sendeoi(unsigned char reg) {
 
 // https://wiki.osdev.org/8259_PIC#Programming_the_PIC_chips
 void initpic() {
+	// disable interrupts
+	__asm__ volatile ("cli");
+
 	// save masks
 	unsigned char mask1 = inb(PIC1+1);
 	unsigned char mask2 = inb(PIC2+1);
@@ -68,9 +71,12 @@ void initpic() {
 	outb(PIC2+1, 0b0001);
 	iowait();
 
-	// restore masks
-	outb(PIC1+1, mask1);
-	outb(PIC2+1, mask2);
+	// clear masks
+	outb(PIC1+1, 0xff);
+	outb(PIC2+1, 0xff);
+
+	// enable interrupts
+	__asm__ volatile ("sti");
 }
 
 void enablepic(unsigned char irq) {
@@ -81,7 +87,7 @@ void enablepic(unsigned char irq) {
 		irq -= 8;
 	}
 
-	unsigned char val = inb(port) | (1 << irq); // add mask bit (set 1)
+	unsigned char val = inb(port) & ~(1 << irq); // remove mask bit (set 0)
 	outb(port, val);
 }
 
@@ -93,7 +99,7 @@ void disablepic(unsigned char irq) {
 		irq -= 8;
 	}
 
-	unsigned char val = inb(port) & ~(1 << irq); // remove mask bit (set 0)
+	unsigned char val = inb(port) | (1 << irq); // add mask bit (set 1)
 	outb(port, val);
 }
 
@@ -107,14 +113,13 @@ unsigned short irqreg(int cmd) {
 
 extern unsigned int _idt32;
 void idt32() {
-	printf("Interrupt\n");
-	sendeoi(32-PIC1_OFFSET);
+	sendeoi(0);
 }
 
 extern unsigned int _idt33;
 void idt33() {
-	printf("Interrupt\n");
-	sendeoi(33-PIC1_OFFSET);
+	printf("%b ", inb(0x60));
+	sendeoi(1);
 }
 
 extern void initidtasm();
@@ -128,10 +133,4 @@ void initidt() {
 
 	enablepic(0);
 	enablepic(1);
-
-	for (int i = 0; i < 100000; i++)
-		iowait();
-
-	printf("%x\n", irqreg(0x0a));
-	printf("%x\n", irqreg(0x0b));
 }
