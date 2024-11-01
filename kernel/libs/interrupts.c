@@ -118,20 +118,45 @@ void idt##y() { \
 	sendeoi(x); \
 } \
 
-#define picidt(x) idtbody(x, x)
+#define idthead(x, y) \
+initidtelement(y, (unsigned int)&_idt##y, 0); \
+enablepic(x); \
 
-picidt(32)
-picidt(33)
+idtbody(0, 32)
+idtbody(1, 33)
+idtbody(3, 35)
+idtbody(4, 36)
+idtbody(5, 37)
+idtbody(6, 38)
+idtbody(7, 39)
+idtbody(8, 40)
+idtbody(9, 41)
+idtbody(10, 42)
+idtbody(11, 43)
+idtbody(12, 44)
+idtbody(13, 45)
+idtbody(14, 46)
+idtbody(15, 47)
 
 extern void initidtasm();
 void initidt() {
 	initpic();
 
-	initidtelement(32, (unsigned int)&_idt32, 0);
-	initidtelement(33, (unsigned int)&_idt33, 0);
+	idthead(0, 32)
+	idthead(1, 33)
+	idthead(3, 35)
+	idthead(4, 36)
+	idthead(5, 37)
+	idthead(6, 38)
+	idthead(7, 39)
+	idthead(8, 40)
+	idthead(9, 41)
+	idthead(10, 42)
+	idthead(11, 43)
+	idthead(12, 44)
+	idthead(13, 45)
+	idthead(14, 46)
+	idthead(15, 47)
 
 	initidtasm();
-
-	enablepic(0);
-	enablepic(1);
 }

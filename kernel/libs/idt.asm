@@ -20,11 +20,22 @@ initidtasm:
 	extern idt%1
 	global _idt%1
 	_idt%1:
-		cli
 		call idt%1
-		sti
 		iret
 %endmacro
 
 idt 32
 idt 33
+idt 35
+idt 36
+idt 37
+idt 38
+idt 39
+idt 40
+idt 41
+idt 42
+idt 43
+idt 44
+idt 45
+idt 46
+idt 47

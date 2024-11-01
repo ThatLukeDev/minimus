@@ -1,10 +1,8 @@
-#include "console.h"
+#include "pic.h"
 
 // interrupts.h
 void interrupthandler(unsigned char interrupt) {
-	if (interrupt == 33)
-		printf("\n");
-	printf("%d", interrupt);
-	if (interrupt == 33)
-		printf("\n");
+	for (int i = 0; i < 16; i++)
+		if (picFunc[interrupt][i])
+		picFunc[interrupt][i]();
 }
