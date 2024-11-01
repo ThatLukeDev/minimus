@@ -3,4 +3,6 @@
 
 void (*picFunc[16][16])();
 
+int addPicFunc(int pic, void (*func)());
+
 #endif

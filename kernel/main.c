@@ -3,6 +3,8 @@
 #include "console.h"
 #include "interrupts.h"
 
+#include "pic.h"
+
 void main() {
 	clrscr();
 	initheap();
