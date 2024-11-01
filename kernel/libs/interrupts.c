@@ -6,7 +6,7 @@
 
 #include "ioutils.h"
 
-#include "console.h" //temp
+void interrupthandler(unsigned char interrupt);
 
 struct idtelement {
 	unsigned short offset1; // offset 0-15
@@ -111,16 +111,17 @@ unsigned short irqreg(int cmd) {
 	return (inb(PIC2) << 8) | inb(PIC1);
 }
 
-extern unsigned int _idt32;
-void idt32() {
-	sendeoi(0);
-}
+#define idtbody(x, y) \
+extern unsigned int _idt##y; \
+void idt##y() { \
+	interrupthandler(x); \
+	sendeoi(x); \
+} \
 
-extern unsigned int _idt33;
-void idt33() {
-	printf("%b ", inb(0x60));
-	sendeoi(1);
-}
+#define picidt(x) idtbody(x, x)
+
+picidt(32)
+picidt(33)
 
 extern void initidtasm();
 void initidt() {

@@ -11,6 +11,6 @@ struct idtelement {
 
 void initidt();
 
-void interrupthandler(void* func());
+void interrupthandler(unsigned char interrupt);
 
 #endif
