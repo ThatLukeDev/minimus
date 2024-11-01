@@ -3,12 +3,12 @@
 
 extern char* cursor;
 
-void clrscr();
+extern void clrscr();
 
-void putc(char c);
+extern void putc(char c);
 
-void puts(char* s);
+extern void puts(char* s);
 
-void printf(char* str, ...);
+extern void printf(char* str, ...);
 
 #endif

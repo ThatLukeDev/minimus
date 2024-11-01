@@ -2,7 +2,6 @@
 #include "memory.h"
 #include "console.h"
 #include "interrupts.h"
-
 #include "pic.h"
 
 void main() {

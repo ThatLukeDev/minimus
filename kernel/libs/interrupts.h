@@ -9,8 +9,8 @@ struct idtelement {
 	unsigned short offset2; // offset 16-31
 };
 
-void initidt();
+extern void initidt();
 
-void interrupthandler(unsigned char interrupt);
+extern void interrupthandler(unsigned char interrupt);
 
 #endif

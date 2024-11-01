@@ -1,4 +1,4 @@
-extern void (*picFunc[16][16])();
+void (*picFunc[16][16])();
 
 int addPicFunc(int pic, void (*func)()) {
 	for (int i = 0; i < 16; i++) {

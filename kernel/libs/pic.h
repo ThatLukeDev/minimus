@@ -1,8 +1,8 @@
 #ifndef PIC_LIB
 #define PIC_LIB
 
-void (*picFunc[16][16])();
+extern void (*picFunc[16][16])();
 
-int addPicFunc(int pic, void (*func)());
+extern int addPicFunc(int pic, void (*func)());
 
 #endif

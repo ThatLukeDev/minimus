@@ -1,13 +1,18 @@
+#include "keyboard.h"
+
 #define VMEM_START (char*)0xb8000
 #define VMEM_END (char*)0xb9000
 #define LINE_WIDTH 160
+
 #include <stdarg.h>
+
 char* cursor;
 
 void clrscr() {
 	for (cursor = VMEM_START; cursor < VMEM_END; cursor++)
 		*cursor = 0;
 	cursor = VMEM_START;
+	initkeyboard();
 }
 
 void putc(char c) {
