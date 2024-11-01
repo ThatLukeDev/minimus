@@ -1,3 +1,5 @@
+#include "ioutils.h"
+
 struct memchunk {
 	struct memchunk* prev;
 	struct memchunk* next;
@@ -5,9 +7,9 @@ struct memchunk {
 	char occupied;
 };
 
-struct memchunk* heap = (struct memchunk*)0x11000;
+struct memchunk* heap = (struct memchunk*)0x100000;
 void initheap() {
-	heap->size = 100000; // temporary
+	heap->size = 1000000; // temporary
 	heap->occupied = 0;
 }
 
@@ -15,16 +17,15 @@ void* malloc(unsigned int size) {
 	struct memchunk* check = heap;
 	do {
 		if (check->size > size + 16 && !check->occupied) {
-			struct memchunk* nextchunk = check + size + 16;
+			struct memchunk* nextchunk = (struct memchunk*)(check + size + 16);
 
 			nextchunk->size = check->size - size - 16;
 			nextchunk->prev = check;
 			nextchunk->next = check->next;
 			nextchunk->occupied = 0;
 
-			check->prev = 0;
 			check->next = nextchunk;
-			check->size = size + 16;
+			check->size = size;
 			check->occupied = 1;
 
 			return check + 16;

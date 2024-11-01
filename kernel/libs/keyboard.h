@@ -119,9 +119,12 @@ enum scancodes {
 	SPACE = 0x39,
 };
 
-extern char scancodetoascii[128];
+extern char scancodetoascii[256];
 
-extern int keyStates[128];
+extern unsigned char keyStates[64];
+
+extern void (*keyboardHooks[256])(char);
+int addKeyboardHook(void (*func)(char));
 
 extern void initkeyboard();
 

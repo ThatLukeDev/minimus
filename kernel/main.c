@@ -8,4 +8,8 @@ void main() {
 	clrscr();
 	initheap();
 	initidt();
+
+	printf("Enter a string: ");
+	char* str = gets();
+	printf("You entered %s\n", str);
 }

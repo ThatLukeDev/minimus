@@ -11,4 +11,9 @@ extern void puts(char* s);
 
 extern void printf(char* str, ...);
 
+extern unsigned char showConsoleOutput;
+
+extern char getc();
+extern char* gets();
+
 #endif

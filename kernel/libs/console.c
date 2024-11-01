@@ -1,4 +1,6 @@
 #include "keyboard.h"
+#include "ioutils.h"
+#include "memory.h"
 
 #define VMEM_START (char*)0xb8000
 #define VMEM_END (char*)0xb9000
@@ -6,14 +8,9 @@
 
 #include <stdarg.h>
 
-char* cursor;
+unsigned char showConsoleOutput = 1;
 
-void clrscr() {
-	for (cursor = VMEM_START; cursor < VMEM_END; cursor++)
-		*cursor = 0;
-	cursor = VMEM_START;
-	initkeyboard();
-}
+char* cursor;
 
 void putc(char c) {
 	*cursor++=c;
@@ -111,4 +108,60 @@ void printf(char* str, ...) {
 		str++;
 	}
 	va_end(ap);
+}
+
+char _getcchar;
+char _getnewline;
+
+void consoleKeyboardHook(char scancode) {
+	if (scancode & 0b10000000)
+		return;
+
+	if (scancode == SC_ENTER) {
+		cursor = (char*)((cursor - VMEM_START) / LINE_WIDTH * LINE_WIDTH + LINE_WIDTH + VMEM_START);
+		_getnewline = 1;
+		return;
+	}
+
+	char asciicode = scancodetoascii[scancode];
+
+	if (!asciicode)
+		return;
+
+	if (keyStates[SC_SHIFT])
+		asciicode |= 0b00100000;
+
+	if (showConsoleOutput)
+		putc(asciicode);
+
+	_getcchar = asciicode;
+}
+
+char getc() {
+	_getcchar = 0;
+	_getnewline = 0;
+	while (!_getcchar && !_getnewline)
+		iowait();
+	return _getcchar;
+}
+
+char* gets() {
+	unsigned int size = 1;
+	char* str = malloc(size);
+
+	_getnewline = 0;
+	while (!_getnewline) {
+		str = realloc(str, size++);
+		str[size - 2] = getc();
+	}
+
+	return str;
+}
+
+void clrscr() {
+	for (cursor = VMEM_START; cursor < VMEM_END; cursor++)
+		*cursor = 0;
+	cursor = VMEM_START;
+	initkeyboard();
+	addKeyboardHook(consoleKeyboardHook);
 }
