@@ -3,13 +3,14 @@
 struct memchunk {
 	struct memchunk* prev;
 	struct memchunk* next;
-	unsigned int size;
+	unsigned long size;
 	char occupied;
 };
 
-struct memchunk* heap = (struct memchunk*)0x100000;
+struct memchunk* heap;
 void initheap() {
-	heap->size = 0x1000000; // temporary
+	heap = (struct memchunk*)(*(unsigned long*)0xfff0);
+	heap->size = *(unsigned long*)0xfff8;
 	heap->occupied = 0;
 }
 

@@ -37,30 +37,68 @@ gdt_end:
 	dd gdt_start			; addr (actually 24 bit, 8 ignored)
 gdt_after:
 
-cli
+cli			; disable interrupts
 mov ax, 0xec00
 mov bl, 1		; 1 is 32 bit, 2 is 64 bit
 int 0x15		; notify bios of protected mode
 
-cli			; disable interrupts
+; get largest availible memory block
+pusha			; push all
+mov cx, 0x0		; clear cx for addition later
+xor eax, eax
+mov ebx, 0x0		; clear
+mov edx, 0x534d4150	; magic value
+memreadloop:
+	mov eax, 0xe820		; magic value
+	mov ecx, 0x18		; magic value
+	mov di, 0xffd0		; memory location for buffer
+	int 0x15		; call function
+	add di, cx		; increment di by entry size (cx is 16 bit cl)
+memreadloopvalid:
+	mov eax, [0xffe0]	; load type
+	cmp eax, 1		; check if 1 (availible memory)
+	jne memreadloopend	; go to next otherwise
+memreadloopcheck:
+	mov eax, [0xffda]	; load size of current
+	mov ecx, [0xfffa]	; load size of biggest
+	cmp eax, ecx		; check if bigger
+	jle memreadloopend	; go to next otherwise
+memreadlooprecord:
+	mov eax, [0xffd0]	; load address of current
+	mov [0xfff0], eax	; record biggest address
+	mov eax, [0xffd4]	; load address of current
+	mov [0xfff4], eax	; record biggest address
+	mov eax, [0xffd8]	; load size of current
+	mov [0xfff8], eax	; record biggest size
+	mov eax, [0xffdc]	; load size of current
+	mov [0xfffc], eax	; record biggest size
+memreadloopend:
+	cmp ebx, 0		; check if next
+	jnz memreadloop		; repeat
+popa			; pop all
+
 lgdt [gdt_end]		; gdt_end is descritor table
 mov eax, cr0
 or eax, 1		; set 1 bit in control register for protected mode
 mov cr0, eax
 
 ; stall cpu and flush all cache (as moving to different segment) to finalize protected mode
-jmp (gdt_code - gdt_start):start_kernel
+jmp (gdt_code - gdt_start):bits32code
 
 ; finally 32 bits
 [bits 32]
+bits32code:
 
 mov ecx, 0xc0000080	; extended feature enable register
 rdmsr			; read model specific register
 or eax, 0b100000000	; set long mode bit
 wrmsr			; write model specific register
 mov eax, cr0
-or eax, 1 << 31		; set pg bit
+or eax, 0b100000000000000000000000000000000		; set pg bit
 mov cr0, eax		; we are in compatibility mode
+
+; stall cpu and flush all cache (as moving to different segment) to keep protected mode
+jmp (gdt_code - gdt_start):start_kernel
 
 start_kernel:
 	; segment registers init
@@ -90,5 +128,5 @@ db 0x55,0xaa
 
 ; kernel load
 call kernel_cseg
-jmp $				; temporary for testing
+jmp $				; if fail restart
 kernel_cseg:			; compiled c appeneded here
