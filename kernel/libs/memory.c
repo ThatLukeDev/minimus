@@ -63,7 +63,15 @@ int free(void* ptr) {
 	return 0;
 }
 
-void* realloc(void* ptr, unsigned int size) { // temporary (slow)
+void* realloc(void* ptr, unsigned int size) {
+	struct memchunk* check = ptr - 16;
+	if (check->next && check->next->size >= size - check->size) { // 16 bit excluded as it is on both sides
+		check->size += check->next->size;
+		check->next = check->next->next;
+		return ptr;
+	}
+
+	// slower solution if next memory block isnt free
 	void* _ptr = malloc(size);
 
 	for (unsigned int i = 0; i < size; i++) {
