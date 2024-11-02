@@ -137,8 +137,34 @@ void consoleKeyboardHook(char scancode) {
 	if (!asciicode)
 		return;
 
-	if (keyStates[SC_SHIFT])
-		asciicode |= 0b00100000;
+	if (!keyStates[SC_SHIFT]) {
+		if (asciicode == '-')
+			asciicode = '_';
+		else if (asciicode == '#')
+			asciicode = '~';
+		else if (asciicode == '\'')
+			asciicode = '@';
+		else if (asciicode < '0')
+			asciicode += 16;
+		else if (asciicode >= 'a' && asciicode <= 'z')
+			asciicode -= 32;
+		else if (asciicode >= '1' && asciicode <= '5' && asciicode != '3')
+			asciicode -= 16;
+		else if (asciicode >= '7' && asciicode <= '9' && asciicode != '8')
+			asciicode -= 17;
+		else if (asciicode >= '[' && asciicode <= ']')
+			asciicode += 32;
+		else if (asciicode == '6')
+			asciicode = '^';
+		else if (asciicode == '8')
+			asciicode = '*';
+		else if (asciicode == '0')
+			asciicode = ')';
+		else if (asciicode == ';')
+			asciicode = ':';
+		else if (asciicode == '=')
+			asciicode = '+';
+	}
 
 	if (showConsoleOutput)
 		putc(asciicode);
