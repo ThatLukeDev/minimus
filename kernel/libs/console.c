@@ -112,15 +112,24 @@ void printf(char* str, ...) {
 
 char _getcchar;
 char _getnewline;
+int _getbackspace;
 
 void consoleKeyboardHook(char scancode) {
 	if (scancode & 0b10000000)
 		return;
 
-	if (scancode == SC_ENTER) {
-		cursor = (char*)((cursor - VMEM_START) / LINE_WIDTH * LINE_WIDTH + LINE_WIDTH + VMEM_START);
-		_getnewline = 1;
-		return;
+	if (showConsoleOutput) {
+		if (scancode == SC_ENTER) {
+			cursor = (char*)((cursor - VMEM_START) / LINE_WIDTH * LINE_WIDTH + LINE_WIDTH + VMEM_START);
+			_getnewline = 1;
+			return;
+		}
+		if (scancode == SC_BACK) {
+			_getbackspace++;
+			cursor--;
+			*cursor--=0;
+			return;
+		}
 	}
 
 	char asciicode = scancodetoascii[scancode];
@@ -152,7 +161,10 @@ char* gets() {
 	_getnewline = 0;
 	while (!_getnewline) {
 		str = realloc(str, size++);
-		str[size - 2] = getc();
+		_getbackspace = 0;
+		char c = getc();
+		size -= _getbackspace;
+		str[size - 2] = c;
 	}
 
 	return str;

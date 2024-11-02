@@ -9,7 +9,7 @@ struct memchunk {
 
 struct memchunk* heap = (struct memchunk*)0x100000;
 void initheap() {
-	heap->size = 1000000; // temporary
+	heap->size = 0x1000000; // temporary
 	heap->occupied = 0;
 }
 
