@@ -9,8 +9,8 @@ struct memchunk {
 
 struct memchunk* heap;
 void initheap() {
-	heap = (struct memchunk*)(*(unsigned long*)0xfff0);
-	heap->size = *(unsigned long*)0xfff8;
+	heap = (struct memchunk*)(*(unsigned long*)0xfff0) + 0x100000;
+	heap->size = *(unsigned long*)0xfff8 - 0x100000;
 	heap->occupied = 0;
 }
 
