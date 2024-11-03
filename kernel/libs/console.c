@@ -181,17 +181,20 @@ char getc() {
 }
 
 char* gets() {
-	unsigned int size = 1;
+	int size = 1;
 	char* str = malloc(size);
 
 	_getnewline = 0;
 	while (!_getnewline) {
-		str = realloc(str, size++);
 		_getbackspace = 0;
 		char c = getc();
 		size -= _getbackspace;
+		if (size < 1)
+			size = 1;
+		str = realloc(str, size++);
 		str[size - 2] = c;
 	}
+	str[size - 1] = 0;
 
 	return str;
 }
