@@ -3,13 +3,16 @@
 #include "console.h"
 #include "interrupts.h"
 #include "pic.h"
+#include "clock.h"
 
 void main() {
 	clrscr();
 	initheap();
 	initidt();
+	initclock();
 
-	printf("Enter a string: ");
-	char* str = gets();
-	printf("You entered %s\n", str);
+	for (int i = 1; i <= 10; i++) {
+		printf("%d\n", i);
+		pitsleep(1);
+	}
 }
