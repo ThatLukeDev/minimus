@@ -51,27 +51,27 @@ mov edx, 0x534d4150	; magic value
 memreadloop:
 	mov eax, 0xe820		; magic value
 	mov ecx, 0x18		; magic value
-	mov di, 0xffd0		; memory location for buffer
+	mov di, 0x7bd0		; memory location for buffer
 	int 0x15		; call function
 	add di, cx		; increment di by entry size (cx is 16 bit cl)
 memreadloopvalid:
-	mov eax, [0xffe0]	; load type
+	mov eax, [0x7be0]	; load type
 	cmp eax, 1		; check if 1 (availible memory)
 	jne memreadloopend	; go to next otherwise
 memreadloopcheck:
-	mov eax, [0xffda]	; load size of current
-	mov ecx, [0xfffa]	; load size of biggest
+	mov eax, [0x7bda]	; load size of current
+	mov ecx, [0x7bfa]	; load size of biggest
 	cmp eax, ecx		; check if bigger
 	jle memreadloopend	; go to next otherwise
 memreadlooprecord:
-	mov eax, [0xffd0]	; load address of current
-	mov [0xfff0], eax	; record biggest address
-	mov eax, [0xffd4]	; load address of current
-	mov [0xfff4], eax	; record biggest address
-	mov eax, [0xffd8]	; load size of current
-	mov [0xfff8], eax	; record biggest size
-	mov eax, [0xffdc]	; load size of current
-	mov [0xfffc], eax	; record biggest size
+	mov eax, [0x7bd0]	; load address of current
+	mov [0x7bf0], eax	; record biggest address
+	mov eax, [0x7bd4]	; load address of current
+	mov [0x7bf4], eax	; record biggest address
+	mov eax, [0x7bd8]	; load size of current
+	mov [0x7bf8], eax	; record biggest size
+	mov eax, [0x7bdc]	; load size of current
+	mov [0x7bfc], eax	; record biggest size
 memreadloopend:
 	cmp ebx, 0		; check if next
 	jnz memreadloop		; repeat
@@ -110,7 +110,7 @@ start_kernel:
 	mov ss, ax
 
 	; stack pointers
-	mov esp, [0xfff0]	; top of stack
+	mov esp, [0x7bf0]	; top of stack
 	add esp, 0x100000	; stack size
 	mov ebp, esp		; bottom of stack
 
