@@ -110,8 +110,7 @@ start_kernel:
 	mov ss, ax
 
 	; stack pointers
-	mov esp, [0x7bf0]	; top of stack
-	add esp, 0x100000	; stack size
+	mov esp, 0x7000		; top of stack
 	mov ebp, esp		; bottom of stack
 
 	call kernel		; start kernel and move back to segment
