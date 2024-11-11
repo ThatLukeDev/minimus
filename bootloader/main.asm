@@ -89,14 +89,45 @@ jmp (gdt_code - gdt_start):bits32code
 [bits 32]
 bits32code:
 
-mov ecx, 0xc0000080	; extended feature enable register
-rdmsr			; read model specific register
-or eax, 0b100000000	; set long mode bit
-wrmsr			; write model specific register
-mov eax, cr0
-or eax, 0b100000000000000000000000000000000		; set pg bit
-mov cr0, eax		; we are in compatibility mode
+mov ax, [0x107dfe] 	; check [7dfe] (the bios magic number) plus 0x100000 (1mb)
+cmp ax, 0xaa55		; check if magic number
+jne skipa20		; if equal, a20 bit, skip
 
+cli			; interrupts off
+call a20wait		; wait for write
+mov al, 0xad
+out 0x64, al		; send 0xad
+call a20wait		; wait for write
+mov al, 0xd0
+out 0x64, al		; send 0xd0
+call a20waitr		; wait for read
+in al, 0x60		; get ack
+push eax
+call a20wait		; wait for write
+mov al, 0xd1
+out 0x64, al		; send 0xd1
+call a20wait		; wait for write
+pop eax			; eax gets overwritten
+or al, 0b0010		; a20 bit
+out 0x60, al		; set a20 bit on
+call a20wait		; wait for write
+mov al, 0xae
+out 0x64, al		; send 0xae
+call a20wait		; wait for generic
+sti			; interrupts on
+jmp skipa20		; go to end
+a20wait:
+	in al,0x64
+	test al,2
+	jnz a20wait
+	ret
+a20waitr:
+	in al,0x64
+	test al,1
+	jz a20waitr
+	ret
+
+skipa20:
 ; stall cpu and flush all cache (as moving to different segment) to keep protected mode
 jmp (gdt_code - gdt_start):start_kernel
 
