@@ -133,6 +133,9 @@ void consoleKeyboardHook(char scancode) {
 			_getbackspace++;
 			cursor--;
 			*cursor--=0;
+			int x = (int)(cursor - VMEM_START) % LINE_WIDTH / 2;
+			int y = (int)(cursor - VMEM_START) / LINE_WIDTH;
+			drawchar(x, y, 0);
 			return;
 		}
 	}
