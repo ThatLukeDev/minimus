@@ -13,8 +13,8 @@ void drawpixel(unsigned char code, int _x, int _y) {
 void drawchar(unsigned char _char, int _x, int _y) {
 	unsigned char* fontchar = font + ((int)_char * 16);
 
-	for (int x = 0; x < 8; x++) {
-		for (int y = 0; y < 16; y++) {
+	for (int y = 0; y < 16; y++) {
+		for (int x = 0; x < 8; x++) {
 			drawpixel(_x * 8 + x, _y * 16 + y, fontchar[y] & (1 << x)); // bit to byte
 		}
 	}

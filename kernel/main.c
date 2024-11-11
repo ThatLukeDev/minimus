@@ -12,5 +12,8 @@ void main() {
 	initidt();
 	initclock();
 
-	drawchar('a', 0, 0);
+	//drawchar('a', 0, 0);
+	for (int x = 0; x < 256; x++)
+		for (int y = 0; y < 200; y++)
+			drawpixel(x, x, y);
 }
