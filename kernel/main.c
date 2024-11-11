@@ -11,6 +11,7 @@ void main() {
 	initheap();
 	initidt();
 	initclock();
+	initvga();
 
 	//drawchar('a', 0, 0);
 	for (int x = 0; x < 256; x++)
