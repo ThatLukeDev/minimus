@@ -4,6 +4,7 @@
 #include "interrupts.h"
 #include "pic.h"
 #include "clock.h"
+#include "vga.h"
 
 void main() {
 	clrscr();
@@ -11,6 +12,5 @@ void main() {
 	initidt();
 	initclock();
 
-	*((unsigned int*)0xa0000) = 0;
-	printf("%d", *(unsigned int*)0xa0000);
+	drawchar('a', 0, 0);
 }

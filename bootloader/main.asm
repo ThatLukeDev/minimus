@@ -75,6 +75,31 @@ memreadlooprecord:
 memreadloopend:
 	cmp ebx, 0		; check if next
 	jnz memreadloop		; repeat
+
+; vga mode
+mov ah, 0x0		; graphics mode
+mov al, 0x13		; 256 colour 200x320
+int 0x10		; set vga mode
+
+; get vga font
+mov eax, 0x100
+mov es, eax
+mov ax, 0x0
+mov di, ax
+push ds
+push es
+mov ax, 0x1130		; magic numbers
+mov bh, 0x6
+int 0x10		; get vga font
+;mov ds, es
+push es
+pop ds
+pop es
+mov si, bp
+mov cx, 0x400
+rep movsd
+pop ds
+
 popa			; pop all
 
 lgdt [gdt_end]		; gdt_end is descritor table
