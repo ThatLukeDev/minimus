@@ -13,8 +13,7 @@ void main() {
 	initclock();
 	initvga();
 
-	//drawchar('a', 0, 0);
-	for (int x = 0; x < 256; x++)
-		for (int y = 0; y < 200; y++)
-			drawpixel(x, x, y);
+	drawchar(0, 0, 'a');
+	drawchar(1, 0, 'b');
+	drawchar(2, 0, 'c');
 }

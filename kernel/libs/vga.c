@@ -8,16 +8,21 @@ extern void getvgafont();
 
 unsigned char* font = (unsigned char*)0x1000; // defined in bootloader/main.asm
 
-void drawpixel(unsigned char code, int _x, int _y) {
+void drawpixel(int _x, int _y, unsigned char code) {
 	*(VGA_MEM + _x + _y * VGA_HEIGHT) = code;
 }
 
-void drawchar(unsigned char _char, int _x, int _y) {
+void drawchar(int _x, int _y, unsigned char _char) {
 	unsigned char* fontchar = font + ((int)_char * 16);
 
 	for (int y = 0; y < 16; y++) {
 		for (int x = 0; x < 8; x++) {
-			drawpixel(_x * 8 + x, _y * 16 + y, fontchar[y] & (1 << x)); // bit to byte
+			if (fontchar[y] & (1 << x)) {
+				drawpixel(_x * 8 + x, _y * 16 + y, 0xff);
+			}
+			else {
+				drawpixel(_x * 8 + x, _y * 16 + y, 0x00);
+			}
 		}
 	}
 }
@@ -33,4 +38,5 @@ void initvga() {
 		outb(0x3c9, g); // set DAC G for i
 		outb(0x3c9, b); // set DAC B for i
 	}
+	iowait();
 }
