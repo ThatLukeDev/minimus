@@ -11,8 +11,6 @@ void main() {
 	initidt();
 	initclock();
 
-	for (int i = 1; i <= 10; i++) {
-		printf("%d\n", i);
-		pitsleep(1);
-	}
+	*((unsigned int*)0xa0000) = 0;
+	printf("%d", *(unsigned int*)0xa0000);
 }
