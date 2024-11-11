@@ -1,10 +1,11 @@
 #include "keyboard.h"
 #include "ioutils.h"
 #include "memory.h"
+#include "vga.h"
 
 #define VMEM_START (char*)0xb8000
 #define VMEM_END (char*)0xb9000
-#define LINE_WIDTH 160
+#define LINE_WIDTH 80
 
 #include <stdarg.h>
 
@@ -13,6 +14,10 @@ unsigned char showConsoleOutput = 1;
 char* cursor;
 
 void putc(char c) {
+	int x = (int)(cursor - VMEM_START) % LINE_WIDTH / 2;
+	int y = (int)(cursor - VMEM_START) / LINE_WIDTH;
+
+	drawchar(x, y, c);
 	*cursor++=c;
 	*cursor++=0x07;
 }

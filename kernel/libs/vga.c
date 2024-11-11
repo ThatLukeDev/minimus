@@ -17,7 +17,7 @@ void drawchar(int _x, int _y, unsigned char _char) {
 
 	for (int y = 0; y < 16; y++) {
 		for (int x = 0; x < 8; x++) {
-			if (fontchar[y] & (1 << x)) {
+			if (fontchar[y] & (0b10000000 >> x)) {
 				drawpixel(_x * 8 + x, _y * 16 + y, 0xff);
 			}
 			else {

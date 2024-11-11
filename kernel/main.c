@@ -12,8 +12,4 @@ void main() {
 	initidt();
 	initclock();
 	initvga();
-
-	drawchar(0, 0, 'a');
-	drawchar(1, 0, 'b');
-	drawchar(2, 0, 'c');
 }
