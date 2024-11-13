@@ -1,5 +1,5 @@
 bin/os.img: bin bin/os.bin
-	dd if=/dev/zero of=$@ count=2280
+	dd if=/dev/zero of=$@ bs=512 count=2280
 	dd if=bin/os.bin of=$@ conv=notrunc
 
 bin/os.bin: bin/bootloader.bin bin/kernel.bin

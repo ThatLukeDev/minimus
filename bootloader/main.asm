@@ -4,6 +4,8 @@
 KERNEL_SEGS equ 64	; KERNEL_SEGS is in segments, where each segment is 512 bytes
 
 ; read kernel (https://en.wikipedia.org/wiki/INT_13H)
+mov bx, 0
+mov es, bx
 mov bx, 0x7e00		; offset
 mov ah, 0x02		; set read mode
 mov cl, 2		; start from sec 2 (sec 1 is boot, sec 2 is kernel)
@@ -36,11 +38,6 @@ gdt_end:
 	dw gdt_end - gdt_start - 1	; limit
 	dd gdt_start			; addr (actually 24 bit, 8 ignored)
 gdt_after:
-
-cli			; disable interrupts
-mov ax, 0xec00
-mov bl, 1		; 1 is 32 bit, 2 is 64 bit
-int 0x15		; notify bios of protected mode
 
 ; get largest availible memory block
 pusha			; push all
@@ -102,21 +99,20 @@ pop ds
 
 popa			; pop all
 
-lgdt [gdt_end]		; gdt_end is descritor table
+cli			; disable interrupts
+lgdt [gdt_end]		; gdt_end is descritor table descriptor
 mov eax, cr0
 or eax, 1		; set 1 bit in control register for protected mode
 mov cr0, eax
-
-; stall cpu and flush all cache (as moving to different segment) to finalize protected mode
-jmp (gdt_code - gdt_start):bits32code
+jmp (gdt_code - gdt_start):bits32code	; stall cpu and flush all cache (as moving to different segment) to finalize protected mode
 
 ; finally 32 bits
 [bits 32]
 bits32code:
 
-mov ax, [0x107dfe] 	; check [7dfe] (the bios magic number) plus 0x100000 (1mb)
-cmp ax, 0xaa55		; check if magic number
-jne skipa20		; if equal, a20 bit, skip
+;mov ax, [0x107dfe] 	; check [7dfe] (the bios magic number) plus 0x100000 (1mb)
+;cmp ax, 0xaa55		; check if magic number
+;jne skipa20		; if equal, a20 bit, skip
 
 cli			; interrupts off
 call a20wait		; wait for write
@@ -184,5 +180,5 @@ db 0x55,0xaa
 
 ; kernel load
 call kernel_cseg
-jmp $				; if fail restart
+jmp $$				; if fail restart
 kernel_cseg:			; compiled c appeneded here
