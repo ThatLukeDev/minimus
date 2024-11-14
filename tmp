@@ -1,1 +1,0 @@
-objdump -b binary --adjust-vma=0x7c00 -mi386 -D bin/bootloader.bin | less

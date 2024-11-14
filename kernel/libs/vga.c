@@ -1,3 +1,5 @@
+#include "bochs.h" // temp
+
 #include "ioutils.h"
 
 extern void getvgafont();
@@ -15,6 +17,7 @@ void drawpixel(int _x, int _y, unsigned char code) {
 void drawchar(int _x, int _y, unsigned char _char) {
 	unsigned char* fontchar = font + ((int)_char * 16);
 
+	bochsLB();
 	for (int y = 0; y < 16; y++) {
 		for (int x = 0; x < 8; x++) {
 			if (fontchar[y] & (0b10000000 >> x)) {
@@ -25,6 +28,7 @@ void drawchar(int _x, int _y, unsigned char _char) {
 			}
 		}
 	}
+	bochsLB();
 }
 
 void initvga() {

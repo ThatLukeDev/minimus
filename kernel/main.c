@@ -9,15 +9,11 @@
 #include "vga.h"
 
 void main() {
-	clrscr();
-	initidt();
 	initheap();
-	initclock();
-	bochsLB();
+	clrscr();
 	initvga();
-	bochsLB();
+	initidt();
+	initclock();
 
-	printf("hi");
-
-	while (1) continue;
+	printf("Hello World!");
 }
