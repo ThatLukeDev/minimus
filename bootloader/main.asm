@@ -74,29 +74,29 @@ memreadloopend:
 	cmp ebx, 0		; check if next
 	jnz memreadloop		; repeat
 
-;; vga mode
-;mov ah, 0x0		; graphics mode
-;mov al, 0x13		; 256 colour 200x320
-;int 0x10		; set vga mode
-;
-;; get vga font
-;mov eax, 0x100
-;mov es, eax
-;mov ax, 0x0
-;mov di, ax
-;push ds
-;push es
-;mov ax, 0x1130		; magic numbers
-;mov bh, 0x6
-;int 0x10		; get vga font
-;;mov ds, es
-;push es
-;pop ds
-;pop es
-;mov si, bp
-;mov cx, 0x400
-;rep movsd
-;pop ds
+; vga mode
+mov ah, 0x0		; graphics mode
+mov al, 0x13		; 256 colour 200x320
+int 0x10		; set vga mode
+
+; get vga font
+mov eax, 0x100
+mov es, eax
+mov ax, 0x0
+mov di, ax
+push ds
+push es
+mov ax, 0x1130		; magic numbers
+mov bh, 0x6
+int 0x10		; get vga font
+;mov ds, es
+push es
+pop ds
+pop es
+mov si, bp
+mov cx, 0x400
+rep movsd
+pop ds
 
 popa			; pop all
 
@@ -111,8 +111,7 @@ jmp (gdt_code - gdt_start):bits32code	; stall cpu and flush all cache (as moving
 [bits 32]
 bits32code:
 
-jmp $ ; VARARGS -- PANIC BELOW SEG
-cli			; interrupts off
+xor al, al
 call a20wait		; wait for write
 mov al, 0xad
 out 0x64, al		; send 0xad
@@ -133,7 +132,6 @@ call a20wait		; wait for write
 mov al, 0xae
 out 0x64, al		; send 0xae
 call a20wait		; wait for generic
-sti			; interrupts on
 jmp skipa20		; go to end
 a20wait:
 	in al,0x64
