@@ -7,13 +7,13 @@
 #include "vga.h"
 
 void main() {
-	initidt();
 	clrscr();
+	initidt();
 	initheap();
 	initclock();
 	initvga();
 
 	printf("hi");
 
-	while (1) continue; // temporary
+	while (1) continue;
 }
