@@ -1,3 +1,5 @@
+#include "bochs.h"
+
 #include "ioutils.h"
 #include "memory.h"
 #include "console.h"
@@ -11,7 +13,9 @@ void main() {
 	initidt();
 	initheap();
 	initclock();
+	bochsLB();
 	initvga();
+	bochsLB();
 
 	printf("hi");
 
