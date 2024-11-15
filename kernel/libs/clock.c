@@ -1,24 +1,25 @@
-#define CLOCK_FREQ 291.304199219d // middle ground, can go 170 days before overflow
+#define CLOCK_FREQ 291304 // middle ground, can go 170 days before overflow (given in millihz)
 
 #include "pic.h"
 #include "ioutils.h"
 
 unsigned long ticks = 0;
-double runtime = 0;
+unsigned long runtime = 0;
 
-void pitsleep(double time) {
-	double last = runtime;
+void pitsleep(unsigned long milliseconds) {
+	unsigned long desired = runtime + milliseconds;
 
-	while (runtime < last + time) {
+	while (1) {
+		if (runtime > desired) {
+			return;
+		}
 		iowait();
 	}
-
-	return;
 }
 
 void pitint() {
 	ticks++;
-	runtime = ticks / CLOCK_FREQ;
+	runtime = ticks * 1000000 / CLOCK_FREQ;
 }
 
 void initclock() {

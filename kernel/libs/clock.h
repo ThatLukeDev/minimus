@@ -2,9 +2,9 @@
 #define CLOCK_LIB
 
 extern unsigned long ticks;
-extern double runtime;
+extern unsigned long runtime;
 
-extern void pitsleep(double time);
+void pitsleep(unsigned int milliseconds);
 
 extern void initclock();
 

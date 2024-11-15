@@ -15,5 +15,9 @@ void main() {
 	initidt();
 	initclock();
 
-	printf("Hello World!");
+	printf("Hello World!\n");
+	for (int i = 1; i <= 10; i++) {
+		pitsleep(1000);
+		printf("%d\n", i);
+	}
 }
