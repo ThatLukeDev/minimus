@@ -20,7 +20,9 @@ initidtasm:
 	extern idt%1
 	global _idt%1
 	_idt%1:
+		pusha
 		call idt%1
+		popa
 		iret
 %endmacro
 
