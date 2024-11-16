@@ -7,17 +7,25 @@
 #include "pic.h"
 #include "clock.h"
 #include "vga.h"
+#include "mouse.h"
 
 void main() {
 	initheap();
+	initconsole();
 	clrscr();
 	initvga();
 	initidt();
 	initclock();
+	initmouse();
 
-	printf("Hello World!\n");
-	for (int i = 1; i <= 10; i++) {
-		pitsleep(1000);
-		printf("%d\n", i);
+	printf("CTRL + SCROLLBTN to enable mouse\non bochs.\n");
+
+	while (1) {
+		unsigned char colour = 0xff;
+		if (mouseRight)
+			colour = 0x0f;
+		if (mouseLeft)
+			colour = 0xf0;
+		drawpixel(mouseX, mouseY, colour);
 	}
 }

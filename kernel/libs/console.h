@@ -1,6 +1,8 @@
 #ifndef LIB_CONSOLE
 #define LIB_CONSOLE
 
+extern void initconsole();
+
 extern char* cursor;
 
 extern void clrscr();

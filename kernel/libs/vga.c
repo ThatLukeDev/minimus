@@ -3,13 +3,21 @@
 extern void getvgafont();
 
 #define VGA_MEM (unsigned char*)0xa0000
-#define VGA_WIDTH 200
-#define VGA_HEIGHT 320
+#define VGA_WIDTH 320
+#define VGA_HEIGHT 200
 
 unsigned char* font = (unsigned char*)0x1000; // defined in bootloader/main.asm
 
 void drawpixel(int _x, int _y, unsigned char code) {
-	*(VGA_MEM + _x + _y * VGA_HEIGHT) = code;
+	*(VGA_MEM + _x + _y * VGA_WIDTH) = code;
+}
+
+void clrvga() {
+	for (int x = 0; x < VGA_WIDTH; x++) {
+		for (int y = 0; y < VGA_HEIGHT; y++) {
+			drawpixel(x, y, 0);
+		}
+	}
 }
 
 void drawchar(int _x, int _y, unsigned char _char) {

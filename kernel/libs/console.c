@@ -211,6 +211,10 @@ void clrscr() {
 	for (cursor = VMEM_START; cursor < VMEM_END; cursor++)
 		*cursor = 0;
 	cursor = VMEM_START;
+	clrvga();
+}
+
+void initconsole() {
 	initkeyboard();
 	addKeyboardHook(consoleKeyboardHook);
 }

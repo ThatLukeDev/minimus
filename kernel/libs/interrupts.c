@@ -40,10 +40,6 @@ void initpic() {
 	// disable interrupts
 	__asm__ volatile ("cli");
 
-	// save masks
-	unsigned char mask1 = inb(PIC1+1);
-	unsigned char mask2 = inb(PIC2+1);
-
 	// each wait allows PIC to process
 
 	// set initialisation command for cascade (master and slave) (icw1)
@@ -71,8 +67,8 @@ void initpic() {
 	outb(PIC2+1, 0b0001);
 	iowait();
 
-	// clear masks
-	outb(PIC1+1, 0xff);
+	// masks
+	outb(PIC1+1, 0xff & ~(1 << 2));
 	outb(PIC2+1, 0xff);
 
 	// enable interrupts
