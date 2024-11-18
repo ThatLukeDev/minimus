@@ -98,6 +98,65 @@ mov cx, 0x400
 rep movsd
 pop ds
 
+; get vesa support
+mov [0x2000], DWORD "VBE2"
+mov ax, 0x4f00		; magic number
+mov di, 0
+mov es, di
+mov di, 0x2000		; offset to table
+int 0x10		; get vbe table
+cmp ax, 0x004f		; check if support
+jne skip_vbe		; use vga instead if not
+
+mov di, 0		; offset to tmp
+mov es, di
+mov di, 0x2200		; segment to tmp
+mov si, [0x2000 + 16]	; segment of list
+mov ds, si
+mov si, [0x2000 + 14]	; offset of list
+
+vbe_loop:
+; get next supported vesa function
+movsw
+sub di, 2		; (2 is added to both)
+mov cx, [0x2200]	; vesa mode
+cmp cx, 0xffff		; check if end
+je skip_vbe		; loop
+
+; get details
+mov ax, 0x4f01		; magic number
+int 0x10		; get vbe
+
+mov ax, [0x2200]	; check attr
+and ax, 0b10000000	; check bit 7 (linear framebuffer)
+cmp ax, 0
+jz vbe_loop		; if not linear, loop
+
+mov al, [0x2200 + 25]	; check colourspace
+mov [0x2201], BYTE 0x00	; vbe 32 bit flag
+cmp al, 24
+je vbe_check_dims	; if not rgb, loop
+cmp al, 32
+mov [0x2201], BYTE 0xff	; vbe 32 bit flag
+je vbe_check_dims	; if not rgb, loop
+jmp vbe_loop		; actual loop
+
+vbe_check_dims:
+mov ax, [0x2200 + 18]	; check width
+cmp ax, 640
+jne vbe_loop		; if not desired, loop
+
+mov ax, [0x2200 + 20]	; check height
+cmp ax, 400
+jne vbe_loop		; if not desired, loop
+
+mov [0x2200], BYTE 0xff	; vbe correct flag
+jmp complete_vbe
+
+skip_vbe:
+mov [0x2200], BYTE 0x00
+
+complete_vbe:
 popa			; pop all
 
 cli			; disable interrupts
