@@ -21,11 +21,13 @@ void main() {
 	printf("CTRL + SCROLLBTN to enable mouse\non bochs.\n");
 
 	while (1) {
-		unsigned char colour = 0xff;
+		unsigned char r = 0xff;
+		unsigned char g = 0xff;
+		unsigned char b = 0xff;
 		if (mouseRight)
-			colour = 0x0f;
+			r = 0x00;
 		if (mouseLeft)
-			colour = 0xf0;
-		drawpixel(mouseX, mouseY, colour);
+			b = 0x00;
+		drawpixel(mouseX, mouseY, r, g, b);
 	}
 }

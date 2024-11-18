@@ -165,7 +165,7 @@ start_kernel:
 
 ; kernel
 kernel:
-	jmp 0x7e00		; hand control to kernel
+	jmp kernel_loadseg	; hand control to kernel
 	jmp $$			; return -> error, loop
 
 ; padding
@@ -175,6 +175,7 @@ times 510 - ($-$$) db 0
 db 0x55,0xaa
 
 ; kernel load
+kernel_loadseg:
 call kernel_cseg
 jmp $				; if fail restart
 kernel_cseg:			; compiled c appeneded here

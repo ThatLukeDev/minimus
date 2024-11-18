@@ -8,14 +8,14 @@ extern void getvgafont();
 
 unsigned char* font = (unsigned char*)0x1000; // defined in bootloader/main.asm
 
-void drawpixel(int _x, int _y, unsigned char code) {
-	*(VGA_MEM + _x + _y * VGA_WIDTH) = code;
+void drawpixel(int _x, int _y, unsigned char r, unsigned char g, unsigned char b) {
+	*(VGA_MEM + _x + _y * VGA_WIDTH) = (r & 0b11100000) | ((g >> 3) & 0b00011100) | ((b >> 6) & 0b00000011);
 }
 
 void clrvga() {
 	for (int x = 0; x < VGA_WIDTH; x++) {
 		for (int y = 0; y < VGA_HEIGHT; y++) {
-			drawpixel(x, y, 0);
+			drawpixel(x, y, 0x00, 0x00, 0x00);
 		}
 	}
 }
@@ -26,10 +26,10 @@ void drawchar(int _x, int _y, unsigned char _char) {
 	for (int y = 0; y < 16; y++) {
 		for (int x = 0; x < 8; x++) {
 			if (fontchar[y] & (0b10000000 >> x)) {
-				drawpixel(_x * 8 + x, _y * 16 + y, 0xff);
+				drawpixel(_x * 8 + x, _y * 16 + y, 0xff, 0xff, 0xff);
 			}
 			else {
-				drawpixel(_x * 8 + x, _y * 16 + y, 0x00);
+				drawpixel(_x * 8 + x, _y * 16 + y, 0x00, 0x00, 0x00);
 			}
 		}
 	}
