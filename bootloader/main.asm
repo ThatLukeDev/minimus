@@ -136,8 +136,8 @@ mov al, [0x2200 + 25]	; check colourspace
 mov [0x2201], BYTE 0x00	; vbe 32 bit flag
 cmp al, 24
 je vbe_check_dims	; if not rgb, loop
-cmp al, 32
 mov [0x2201], BYTE 0xff	; vbe 32 bit flag
+cmp al, 32
 je vbe_check_dims	; if not rgb, loop
 jmp vbe_loop		; actual loop
 
@@ -147,14 +147,27 @@ cmp ax, 640
 jne vbe_loop		; if not desired, loop
 
 mov ax, [0x2200 + 20]	; check height
-cmp ax, 400
+cmp ax, 480
 jne vbe_loop		; if not desired, loop
 
-mov [0x2200], BYTE 0xff	; vbe correct flag
-jmp complete_vbe
+jmp enable_vbe		; turn on this vbe
 
 skip_vbe:
-mov [0x2200], BYTE 0x00
+mov [0x2200], BYTE 0x00	; vbe corect flag
+jmp complete_vbe	; skip
+
+enable_vbe:
+mov ax, [0x2200 + 40]	; framebuffer
+mov [0x2200 + 2], ax	; framebuffer
+mov ax, [0x2200 + 42]	; framebuffer
+mov [0x2200 + 4], ax	; framebuffer
+mov ax, 0x4f02		; magic number
+mov bx, cx		; move mode number
+or bx, 0x4000		; set linear framebuffer
+int 0x10		; set vbe mode
+cmp ax, 0x004f		; test for error
+jne skip_vbe		; skip if error (will use vga instead)
+mov [0x2200], BYTE 0xff	; vbe correct flag
 
 complete_vbe:
 popa			; pop all

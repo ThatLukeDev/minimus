@@ -5,7 +5,7 @@
 
 #define VMEM_START (char*)0xb8000
 #define VMEM_END (char*)0xb9000
-#define LINE_WIDTH 80
+#define LINE_WIDTH 160
 
 #include <stdarg.h>
 

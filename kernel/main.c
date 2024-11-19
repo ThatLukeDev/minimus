@@ -18,7 +18,7 @@ void main() {
 	initclock();
 	initmouse();
 
-	printf("CTRL + SCROLLBTN to enable mouse\non bochs.\n");
+	printf("CTRL + SCROLLBTN to enable mouse on bochs.\n");
 
 	while (1) {
 		unsigned char r = 0xff;

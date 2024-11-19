@@ -1,8 +1,8 @@
 #include "pic.h"
 #include "ioutils.h"
 
-#define SCREEN_WIDTH 320
-#define SCREEN_HEIGHT 200
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
 
 unsigned char recieveMouse() {
 	while (!(inb(0x64) & 0b0001)) continue; // wait for read flag
