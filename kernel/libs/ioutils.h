@@ -4,7 +4,7 @@
 extern void outb(unsigned short port, unsigned char val);
 extern unsigned char inb(unsigned short port);
 void outw(unsigned short port, unsigned short val);
-unsigned char inw(unsigned short port);
+unsigned short inw(unsigned short port);
 extern void iowait();
 
 #endif
