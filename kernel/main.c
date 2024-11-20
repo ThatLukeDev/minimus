@@ -1,5 +1,3 @@
-#include "bochs.h"
-
 #include "ioutils.h"
 #include "memory.h"
 #include "console.h"
@@ -8,6 +6,7 @@
 #include "clock.h"
 #include "vga.h"
 #include "mouse.h"
+#include "disk.h"
 
 void main() {
 	initheap();
@@ -18,16 +17,9 @@ void main() {
 	initclock();
 	initmouse();
 
-	printf("CTRL + SCROLLBTN to enable mouse on bochs.\n");
+	unsigned char* tmp = diskReadSector(0, 1);
 
-	while (1) {
-		unsigned char r = 0xff;
-		unsigned char g = 0xff;
-		unsigned char b = 0xff;
-		if (mouseRight)
-			r = 0x00;
-		if (mouseLeft)
-			b = 0x00;
-		drawpixel(mouseX, mouseY, r, g, b);
+	for (int i = 0; i < 512; i++) {
+		printf("%x ", tmp[i]);
 	}
 }
