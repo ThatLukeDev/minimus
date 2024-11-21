@@ -51,3 +51,30 @@ void* diskWriteSector(unsigned int lba, unsigned char sectors, unsigned char* bu
 
 	return buffer;
 }
+
+void* diskRead(unsigned long addr, unsigned long size) {
+	unsigned int sectorStart = addr / 512;
+	unsigned int sectorEnd = (addr + size) / 512;
+	unsigned int sectors = sectorEnd - sectorStart;
+	unsigned int offset = addr - sectorStart * 512;
+
+	unsigned char* buffer = malloc(size);
+
+	unsigned int i = 0;
+
+	for (unsigned int sector = sectorStart; sector <= sectorEnd; sector++) {
+		unsigned char* current = diskReadSector(sector, 1);
+
+		unsigned int endOfSector = (sector + 1) * 512 - offset;
+		if (endOfSector > size)
+			endOfSector = size;
+
+		for (; i < endOfSector; i++) {
+			buffer[i] = current[(i + offset) % 512];
+		}
+
+		free(current);
+	}
+
+	return buffer;
+}
