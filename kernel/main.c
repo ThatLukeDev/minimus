@@ -20,6 +20,17 @@ void main() {
 	unsigned char* tmp = diskReadSector(0, 1);
 
 	for (int i = 0; i < 512; i++) {
+		tmp[i] = i;
+	}
+
+	diskWriteSector(0, 1, tmp);
+
+	iowait();
+
+	free(tmp);
+	tmp = diskReadSector(0, 1);
+
+	for (int i = 0; i < 512; i++) {
 		printf("%x ", tmp[i]);
 	}
 }
