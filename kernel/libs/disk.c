@@ -78,3 +78,29 @@ void* diskRead(unsigned long addr, unsigned long size) {
 
 	return buffer;
 }
+
+void* diskWrite(unsigned long addr, unsigned long size, unsigned char* buffer) {
+	unsigned int sectorStart = addr / 512;
+	unsigned int sectorEnd = (addr + size) / 512;
+	unsigned int sectors = sectorEnd - sectorStart;
+	unsigned int offset = addr - sectorStart * 512;
+
+	unsigned int i = 0;
+
+	for (unsigned int sector = sectorStart; sector <= sectorEnd; sector++) {
+		unsigned char* current = diskReadSector(sector, 1);
+
+		unsigned int endOfSector = (sector + 1) * 512 - offset;
+		if (endOfSector > size)
+			endOfSector = size;
+
+		for (; i < endOfSector; i++) {
+			current[(i + offset) % 512] = buffer[i];
+		}
+
+		diskWriteSector(sector, 1, current);
+		free(current);
+	}
+
+	return buffer;
+}
