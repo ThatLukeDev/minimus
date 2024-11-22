@@ -1,4 +1,5 @@
 #include "ioutils.h"
+#include "strutils.h"
 #include "memory.h"
 #include "console.h"
 #include "interrupts.h"
@@ -17,10 +18,13 @@ void main() {
 	initidt();
 	initclock();
 	initmouse();
+	initfs();
 
 	char* buf = "Hello";
-	fileWrite("test.txt", buf, 6);
+	fileWrite("test.txt", buf, strlen(buf) + 1);
 
 	unsigned long size = 0;
-	char* buf2 = fileRead("test.txt", &size);
+	char* buf2 = fileRead("test.txt");
+
+	printf("%s", buf2);
 }
