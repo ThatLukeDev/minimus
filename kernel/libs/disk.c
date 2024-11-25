@@ -24,7 +24,7 @@ void* diskReadSector(unsigned int lba, unsigned char sectors) {
 	outb(0x1f5, lba >> 16); // mid upper 8 bits
 	outb(0x1f7, 0x20); // read flag
 
-	for (int sector = 0; sector < sectors; sector++) {
+	for (int sector = 0; sector < mallocSec; sector++) {
 		diskWait();
 
 		for (int i = 0; i < 256; i++) {
@@ -36,6 +36,10 @@ void* diskReadSector(unsigned int lba, unsigned char sectors) {
 }
 
 void diskWriteSector(unsigned int lba, unsigned char sectors, unsigned char* buffer) {
+	unsigned short mallocSec = sectors;
+	if (mallocSec == 0)
+		mallocSec = 256;
+
 	outb(0x1f6, 0xe0 | ((lba >> 24) & 0x0f)); // drive and upper 4 bits of lba
 	outb(0x1f1, 0); // ignored but necessary on some systems
 	outb(0x1f2, sectors);
@@ -44,7 +48,7 @@ void diskWriteSector(unsigned int lba, unsigned char sectors, unsigned char* buf
 	outb(0x1f5, lba >> 16); // mid upper 8 bits
 	outb(0x1f7, 0x30); // write flag
 
-	for (int sector = 0; sector < sectors; sector++) {
+	for (int sector = 0; sector < mallocSec; sector++) {
 		diskWait();
 
 		for (int i = 0; i < 256; i++) {
