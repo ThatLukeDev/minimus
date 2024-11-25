@@ -23,7 +23,6 @@ void main() {
 	char* buf = "Hello";
 	fileWrite("test.txt", buf, strlen(buf) + 1);
 
-	unsigned long size = 0;
 	char* buf2 = fileRead("test.txt");
 
 	printf("%s", buf2);

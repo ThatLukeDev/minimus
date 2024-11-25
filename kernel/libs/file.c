@@ -1,5 +1,6 @@
 #include "disk.h"
 #include "strutils.h"
+#include "memory.h"
 
 #define PAGEADDRDISK 0x5000
 
@@ -32,6 +33,8 @@ void* fileRead(char* filename) {
 
 void fileDelete(char* filename) {
 	struct filePage* descriptor = fileDescriptor(filename);
+	if (!descriptor)
+		return;
 	unsigned int len = strlen(&(descriptor->name)) + 17;
 	unsigned char* ptr = (unsigned char*)descriptor;
 
@@ -43,6 +46,8 @@ void fileDelete(char* filename) {
 		else
 			conseqZero = 0;
 	}
+
+	diskWriteSector(PAGEADDRDISK / 512, 0, (void*)pageaddr);
 }
 
 void fileWrite(char* filename, unsigned char* buffer, unsigned long size) {
@@ -53,6 +58,14 @@ void fileWrite(char* filename, unsigned char* buffer, unsigned long size) {
 		descaddr = descriptor->address + descriptor->size;
 		descriptor += strlen(&(descriptor->name)) + 17;
 	}
+
+	descriptor->address = descaddr;
+	descriptor->size = size;
+	memcpy(filename, &(descriptor->name), strlen(filename));
+
+	diskWriteSector(PAGEADDRDISK / 512, 0, (void*)pageaddr);
+
+	diskWrite(descriptor->address, size, buffer);
 }
 
 void initfs() {

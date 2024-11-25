@@ -11,7 +11,10 @@ void diskWait() {
 }
 
 void* diskReadSector(unsigned int lba, unsigned char sectors) {
-	unsigned char* buffer = malloc(sectors * 512);
+	unsigned short mallocSec = sectors;
+	if (mallocSec == 0)
+		mallocSec = 256;
+	unsigned char* buffer = malloc(mallocSec * 512);
 
 	outb(0x1f6, 0xe0 | ((lba >> 24) & 0x0f)); // drive and upper 4 bits of lba
 	outb(0x1f1, 0); // ignored but necessary on some systems
@@ -32,7 +35,7 @@ void* diskReadSector(unsigned int lba, unsigned char sectors) {
 	return buffer;
 }
 
-void* diskWriteSector(unsigned int lba, unsigned char sectors, unsigned char* buffer) {
+void diskWriteSector(unsigned int lba, unsigned char sectors, unsigned char* buffer) {
 	outb(0x1f6, 0xe0 | ((lba >> 24) & 0x0f)); // drive and upper 4 bits of lba
 	outb(0x1f1, 0); // ignored but necessary on some systems
 	outb(0x1f2, sectors);
@@ -48,8 +51,6 @@ void* diskWriteSector(unsigned int lba, unsigned char sectors, unsigned char* bu
 			outw(0x1f0, *(unsigned int*)(buffer + sector * 512 + i * 2));
 		}
 	}
-
-	return buffer;
 }
 
 void* diskRead(unsigned long addr, unsigned long size) {
@@ -79,7 +80,7 @@ void* diskRead(unsigned long addr, unsigned long size) {
 	return buffer;
 }
 
-void* diskWrite(unsigned long addr, unsigned long size, unsigned char* buffer) {
+void diskWrite(unsigned long addr, unsigned long size, unsigned char* buffer) {
 	unsigned int sectorStart = addr / 512;
 	unsigned int sectorEnd = (addr + size) / 512;
 	unsigned int sectors = sectorEnd - sectorStart;
@@ -87,10 +88,10 @@ void* diskWrite(unsigned long addr, unsigned long size, unsigned char* buffer) {
 
 	unsigned int i = 0;
 
-	for (unsigned int sector = sectorStart; sector <= sectorEnd; sector++) {
+	for (unsigned long sector = sectorStart; sector <= sectorEnd; sector++) {
 		unsigned char* current = diskReadSector(sector, 1);
 
-		unsigned int endOfSector = (sector + 1) * 512 - offset;
+		unsigned long endOfSector = (sector + 1 - sectorStart) * 512 - offset;
 		if (endOfSector > size)
 			endOfSector = size;
 
@@ -101,6 +102,4 @@ void* diskWrite(unsigned long addr, unsigned long size, unsigned char* buffer) {
 		diskWriteSector(sector, 1, current);
 		free(current);
 	}
-
-	return buffer;
 }
