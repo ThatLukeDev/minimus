@@ -29,7 +29,10 @@ struct filePage* fileDescriptor(char* filename) {
 void* fileRead(char* filename) {
 	struct filePage* descriptor = fileDescriptor(filename);
 
-	return diskRead(descriptor->address, descriptor->size);
+	if (descriptor)
+		return diskRead(descriptor->address, descriptor->size);
+	else
+		return (void*)0;
 }
 
 void fileDelete(char* filename) {
@@ -47,8 +50,6 @@ void fileDelete(char* filename) {
 		else
 			conseqZero = 0;
 	}
-
-	diskWriteSector(PAGEADDRDISK / 512, 0, (void*)pageaddr);
 }
 
 void fileWrite(char* filename, unsigned char* buffer, unsigned long size) {
