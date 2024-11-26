@@ -9,6 +9,7 @@ struct filePage {
 	unsigned long size;
 	char name;
 };
+#define filePageSize 20
 
 struct filePage* pageaddr;
 
@@ -19,7 +20,7 @@ struct filePage* fileDescriptor(char* filename) {
 		if (!strcmp(&(ptr->name), filename)) {
 			return ptr;
 		}
-		ptr += strlen(&(ptr->name)) + 17;
+		*((unsigned char*)&ptr) += strlen(&(ptr->name)) + filePageSize;
 	}
 
 	return (struct filePage*)0;
@@ -35,7 +36,7 @@ void fileDelete(char* filename) {
 	struct filePage* descriptor = fileDescriptor(filename);
 	if (!descriptor)
 		return;
-	unsigned int len = strlen(&(descriptor->name)) + 17;
+	unsigned int len = strlen(&(descriptor->name)) + filePageSize;
 	unsigned char* ptr = (unsigned char*)descriptor;
 
 	unsigned int conseqZero = 0;
@@ -51,17 +52,19 @@ void fileDelete(char* filename) {
 }
 
 void fileWrite(char* filename, unsigned char* buffer, unsigned long size) {
+	fileDelete(filename);
+
 	struct filePage* descriptor = pageaddr;
 	unsigned long descaddr = 0;
 
 	while (descriptor->address) {
 		descaddr = descriptor->address + descriptor->size;
-		descriptor += strlen(&(descriptor->name)) + 17;
+		*((unsigned char*)&descriptor) += strlen(&(descriptor->name)) + filePageSize;
 	}
 
 	descriptor->address = descaddr;
 	descriptor->size = size;
-	memcpy(filename, &(descriptor->name), strlen(filename));
+	memcpy(&(descriptor->name), filename, strlen(filename));
 
 	diskWriteSector(PAGEADDRDISK / 512, 0, (void*)pageaddr);
 
@@ -73,4 +76,6 @@ void initfs() {
 	pageaddr->address = PAGEADDRDISK + 256 * 512;
 	pageaddr->size = 0;
 	pageaddr->name = 0;
+
+	diskWriteSector(PAGEADDRDISK / 512, 1, (void*)pageaddr);
 }

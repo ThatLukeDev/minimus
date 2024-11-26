@@ -20,10 +20,18 @@ void main() {
 	initmouse();
 	initfs();
 
-	char* buf = "Hello";
-	fileWrite("test.txt", buf, strlen(buf) + 1);
+	char* filename = "hwpart1.txt";
+	char* filename2 = "hwpart2.txt";
 
-	char* buf2 = fileRead("test.txt");
+	char* buf = "No ";
+	fileWrite(filename, buf, strlen(buf) + 1);
+	char* bufoverwrite = "Hello ";
+	fileWrite(filename, bufoverwrite, strlen(bufoverwrite) + 1);
+	char* buf2 = "World!";
+	fileWrite(filename2, buf2, strlen(buf2) + 1);
 
-	printf("%s", buf2);
+	char* obuf1 = fileRead(filename);
+	char* obuf2 = fileRead(filename2);
+
+	printf("%s%s", obuf1, obuf2);
 }
