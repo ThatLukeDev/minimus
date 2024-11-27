@@ -8,8 +8,8 @@
 #define PAGEADDRDISK 0x5000
 
 struct filePage {
-	unsigned long address;
-	unsigned long size;
+	unsigned int address;
+	unsigned int size;
 	char name;
 };
 #define filePageSize 20
