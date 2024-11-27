@@ -2,6 +2,9 @@ bin/os.img: bin bin/os.bin
 	dd if=/dev/zero of=$@ bs=512 count=2280
 	dd if=bin/os.bin of=$@ conv=notrunc
 
+file/bin/blob: file/files/*
+	cd file && make
+
 bin/os.bin: bin/bootloader.bin bin/kernel.bin
 	cat $^ > $@
 
@@ -26,4 +29,5 @@ bin:
 .PHONY: clean
 clean:
 	cd kernel/libs && make clean
+	cd file && make clean
 	rm bin/*

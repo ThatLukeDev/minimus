@@ -1,2 +1,3 @@
 bin/*
 kernel/libs/*.o
+file/bin/*
