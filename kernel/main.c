@@ -20,7 +20,13 @@ void main() {
 	initmouse();
 	initfs();
 
-	printf("test, test2, and test3 have been included.\n");
+	printf("Contents:\n");
+	char** filesList = fileList();
+	for (int i = 0; filesList[i]; i++) {
+		printf("%s\n", filesList[i]);
+	}
+	free(filesList);
+	printf("\n");
 
 	while (1) {
 		printf("Filename: ");

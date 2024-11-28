@@ -72,6 +72,24 @@ void fileWrite(char* filename, unsigned char* buffer, unsigned long size) {
 	diskWrite(descriptor->address, size, buffer);
 }
 
+char** fileList() {
+	int sizeTrack = sizeof(void*);
+	char** wordList = malloc(sizeTrack);
+	wordList[0] = (char*)0;
+
+	struct filePage* ptr = pageaddr;
+
+	while (ptr->address) {
+		sizeTrack += sizeof(void*);
+		wordList = realloc(wordList, sizeTrack);
+		wordList[sizeTrack / sizeof(void*) - 2] = &(ptr->name);
+		wordList[sizeTrack / sizeof(void*) - 1] = 0;
+		*((unsigned char*)&ptr) += strlen(&(ptr->name)) + filePageSize;
+	}
+
+	return wordList;
+}
+
 void initfs() {
 	pageaddr = (struct filePage*)diskReadSector(PAGEADDRDISK / 512, 0);
 	pageaddr->address = PAGEADDRDISK + 256 * 512;
