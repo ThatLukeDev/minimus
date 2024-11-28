@@ -20,6 +20,8 @@ void main() {
 	initmouse();
 	initfs();
 
+	printf("test, test2, and test3 have been included.\n");
+
 	while (1) {
 		printf("Filename: ");
 		char* filename = gets();

@@ -1,9 +1,7 @@
-bin/os.img: bin bin/os.bin
-	dd if=/dev/zero of=$@ bs=512 count=2280
+bin/os.img: bin bin/os.bin file/bin/blob
+	dd if=/dev/zero of=$@ bs=512 count=32768
+	dd if=file/bin/blob of=$@ bs=512 seek=40
 	dd if=bin/os.bin of=$@ conv=notrunc
-
-file/bin/blob: file/files/*
-	cd file && make
 
 bin/os.bin: bin/bootloader.bin bin/kernel.bin
 	cat $^ > $@
@@ -22,6 +20,9 @@ bin/kernel.elf: bin/kernel.o kernel/libs/lib.o
 
 bin/kernel.bin: bin/kernel.elf
 	objcopy -O binary $^ $@
+
+file/bin/blob: file/files/*
+	cd file && make
 
 bin:
 	mkdir $@
