@@ -9,4 +9,9 @@ extern void initvga();
 
 extern void clrvga();
 
+extern unsigned char* font;
+extern unsigned char vbeEnabled;
+extern unsigned char vbeAlpha;
+extern unsigned char* vbeFramebuffer;
+
 #endif

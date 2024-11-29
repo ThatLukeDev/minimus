@@ -9,6 +9,7 @@
 #include "mouse.h"
 #include "disk.h"
 #include "file.h"
+#include "graphics.h"
 
 void main() {
 	initheap();
@@ -20,24 +21,11 @@ void main() {
 	initmouse();
 	initfs();
 
-	printf("Contents:\n");
-	char** filesList = fileList();
-	for (int i = 0; filesList[i]; i++) {
-		printf("%s\n", filesList[i]);
-	}
-	free(filesList);
-	printf("\n");
+	for (int i = 10; i < 100; i += 10)
+		drawoutline(i, i, 640 - i, 480 - i, 255, 255, 255);
 
-	while (1) {
-		printf("Filename: ");
-		char* filename = gets();
-		char* output = fileRead(filename);
+	drawfill(100, 100, 640-100, 480-100, 0, 0, 255);
 
-		if (output)
-			printf("%s\n", output);
-		else {
-			char* buffer = gets();
-			fileWrite(filename, buffer, strlen(buffer)+1);
-		}
-	}
+	char* text = "Hello World!";
+	drawtext(250, 250, text, 255, 0, 0);
 }
