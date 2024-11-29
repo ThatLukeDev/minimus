@@ -16,9 +16,9 @@ unsigned char* font = (unsigned char*)0x1000; // defined in bootloader/main.asm
 
 void drawpixel(int _x, int _y, unsigned char r, unsigned char g, unsigned char b) {
 	if (vbeEnabled) {
-		*(vbeFramebuffer + _x * vbeAlpha + vbeAlpha - 3 + _y * VBE_WIDTH * vbeAlpha) = r;
+		*(vbeFramebuffer + _x * vbeAlpha + vbeAlpha - 3 + _y * VBE_WIDTH * vbeAlpha) = b;
 		*(vbeFramebuffer + _x * vbeAlpha + vbeAlpha - 2 + _y * VBE_WIDTH * vbeAlpha) = g;
-		*(vbeFramebuffer + _x * vbeAlpha + vbeAlpha - 1 + _y * VBE_WIDTH * vbeAlpha) = b;
+		*(vbeFramebuffer + _x * vbeAlpha + vbeAlpha - 1 + _y * VBE_WIDTH * vbeAlpha) = r;
 	}
 	else {
 		_x /= 2;

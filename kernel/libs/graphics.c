@@ -19,16 +19,23 @@ void drawoutline(int x1, int y1, int x2, int y2, unsigned char r, unsigned char 
 	}
 }
 
-void drawtext(int _x, int _y, char* str, unsigned char r, unsigned char g, unsigned char b) {
-	for (; *str != 0; str++) {
+void drawtext(char* str, int _x, int _y, int scale, unsigned char r, unsigned char g, unsigned char b) {
+	for (int i = 0; *str != 0; str++) {
 		unsigned char* fontchar = font + ((int)(*str) * 16);
 
-		for (int y = 0; y < 16; y++) {
-			for (int x = 0; x < 8; x++) {
-				if (fontchar[y] & (0b10000000 >> x)) {
-					drawpixel(_x * 8 + x, _y * 16 + y, r, g, b);
+		int perscale = scale / 16 + 1;
+		for (int y = 0; y < 16 * perscale; y += perscale) {
+			for (int x = 0; x < 8 * perscale; x += perscale) {
+				if (fontchar[y / perscale] & (0b10000000 >> (x / perscale))) {
+					for (int xscale = 0; xscale < perscale; xscale++) {
+						for (int yscale = 0; yscale < perscale; yscale++) {
+							drawpixel(_x + x + i * 8 * perscale + xscale, _y + y + yscale, r, g, b);
+						}
+					}
 				}
 			}
 		}
+
+		i++;
 	}
 }
