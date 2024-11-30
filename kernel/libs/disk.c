@@ -7,7 +7,7 @@ void diskWait() {
 	}
 	unsigned char status = inb(0x1f7);
 	while ((status & 0b10000000 && !(status & 0b1000)))
-		continue;
+		status = inb(0x1f7);
 }
 
 void* diskReadSector(unsigned int lba, unsigned char sectors) {

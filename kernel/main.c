@@ -19,7 +19,6 @@ void main() {
 	initvga();
 	initidt();
 	initclock();
-	initmouse();
 	initfs();
 
 	for (int i = 10; i < 100; i += 10)
