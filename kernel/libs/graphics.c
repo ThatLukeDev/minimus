@@ -41,11 +41,11 @@ void drawtext(char* str, int _x, int _y, int scale, unsigned char r, unsigned ch
 	}
 }
 
-void drawimage(struct image img, int _x, int _y, int scale) {
+void drawimage(struct image img, int _x, int _y) {
 	for (int x = 0; x < img.width; x++) {
 		for (int y = 0; y < img.height; y++) {
-			struct pixel* pix = &(img.data[x * img.height + y]);
-			drawpixel(x + _x, y + _y, pix->r, pix->g, pix->b);
+			unsigned char* pix = img.data + (x + y * img.width) * 3;
+			drawpixel(x + _x, y + _y, pix[0], pix[1], pix[2]);
 		}
 	}
 }

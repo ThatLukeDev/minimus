@@ -35,5 +35,5 @@ void main() {
 	struct image img = loadPPM(ppmimage);
 	free(ppmimage);
 
-	drawimage(img, 200, 200, 1);
+	drawimage(img, 128, 192);
 }

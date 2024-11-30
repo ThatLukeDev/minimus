@@ -9,6 +9,6 @@ extern void drawoutline(int x1, int y1, int x2, int y2, unsigned char r, unsigne
 
 extern void drawtext(char* str, int _x, int _y, int scale, unsigned char r, unsigned char g, unsigned char b);
 
-extern void drawimage(struct image img, int _x, int _y, int scale);
+extern void drawimage(struct image img, int _x, int _y);
 
 #endif
