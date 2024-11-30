@@ -1,4 +1,5 @@
 #include "vga.h"
+#include "image.h"
 
 void drawfill(int x1, int y1, int x2, int y2, unsigned char r, unsigned char g, unsigned char b) {
 	for (int x = x1; x <= x2; x++) {
@@ -37,5 +38,14 @@ void drawtext(char* str, int _x, int _y, int scale, unsigned char r, unsigned ch
 		}
 
 		i++;
+	}
+}
+
+void drawimage(struct image img, int _x, int _y, int scale) {
+	for (int x = 0; x < img.width; x++) {
+		for (int y = 0; y < img.height; y++) {
+			struct pixel* pix = &(img.data[x * img.height + y]);
+			drawpixel(x + _x, y + _y, pix->r, pix->g, pix->b);
+		}
 	}
 }

@@ -10,6 +10,7 @@
 #include "disk.h"
 #include "file.h"
 #include "graphics.h"
+#include "image.h"
 
 void main() {
 	initheap();
@@ -28,4 +29,11 @@ void main() {
 
 	char* text = "Hello World!";
 	drawtext(text, 150, 150, 32, 0, 0, 255);
+
+	char* filename = "image.ppm";
+	unsigned char* ppmimage = fileRead(filename);
+	struct image img = loadPPM(ppmimage);
+	free(ppmimage);
+
+	drawimage(img, 200, 200, 1);
 }
