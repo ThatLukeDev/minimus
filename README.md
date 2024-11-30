@@ -3,6 +3,7 @@ A kernel? An OS? Something?
 
 ## Run
 To run in a VM (faster), the command for qemu is `qemu-system-x86_64 -hda bin/os.img`.
+
 To emulate, the command for bochs is `bochs -q` followed by a `c` in the bochs terminal (for continue).
 Simply run `./run` in a bash shell with dependencies installed to run.
 
