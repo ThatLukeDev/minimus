@@ -13,6 +13,11 @@ unsigned char showConsoleOutput = 1;
 
 char* cursor;
 
+char _getcchar;
+char _getnewline;
+int _getbackspace;
+char* _typecursor;
+
 void putc(char c) {
 	int x = (int)(cursor - VMEM_START) % LINE_WIDTH / 2;
 	int y = (int)(cursor - VMEM_START) / LINE_WIDTH;
@@ -112,12 +117,9 @@ void printf(char* str, ...) {
 		}
 		str++;
 	}
+	_typecursor = cursor;
 	va_end(ap);
 }
-
-char _getcchar;
-char _getnewline;
-int _getbackspace;
 
 void consoleKeyboardHook(char scancode) {
 	if (scancode & 0b10000000)
@@ -126,16 +128,19 @@ void consoleKeyboardHook(char scancode) {
 	if (showConsoleOutput) {
 		if (scancode == SC_ENTER) {
 			cursor = (char*)((cursor - VMEM_START) / LINE_WIDTH * LINE_WIDTH + LINE_WIDTH + VMEM_START);
+			_typecursor = cursor;
 			_getnewline = 1;
 			return;
 		}
 		if (scancode == SC_BACK) {
-			_getbackspace++;
-			cursor--;
-			*cursor--=0;
-			int x = (int)(cursor - VMEM_START) % LINE_WIDTH / 2;
-			int y = (int)(cursor - VMEM_START) / LINE_WIDTH;
-			drawchar(x, y, 0);
+			if (cursor > _typecursor) {
+				_getbackspace++;
+				cursor--;
+				*cursor--=0;
+				int x = (int)(cursor - VMEM_START) % LINE_WIDTH / 2;
+				int y = (int)(cursor - VMEM_START) / LINE_WIDTH;
+				drawchar(x, y, 0);
+			}
 			return;
 		}
 	}
