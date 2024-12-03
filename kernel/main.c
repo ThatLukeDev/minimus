@@ -23,10 +23,10 @@ void main() {
 	initfs();
 	initaudio();
 
-	unsigned char* audio = malloc(1000);
-	for (int i = 0; i < 1000; i++) {
+	unsigned char* audio = malloc(10000);
+	for (int i = 0; i < 10000; i++) {
 		audio[i] = audio[i-1] * i * i * i * i * 2412412142 - 14921331321;
 	}
 
-	playaudio(audio, 1000);
+	playaudio(audio, 10000);
 }
