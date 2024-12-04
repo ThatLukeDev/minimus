@@ -1,5 +1,9 @@
 \documentclass{article}
 
+\usepackage{caption}
+\usepackage[newfloat]{minted}
+\captionsetup[listing]{position=top}
+
 \title{OS Development}
 \author{Luke}
 
@@ -21,6 +25,8 @@ This document serves as a reference for the Minimus operating system.
 
 \section{Bootloader}
 
+\subsection{Headers}
+
 The disk is ordered into sectors, of size 200$_{16}$, starting from sector 1.
 When the BIOS loads the OS, it copies the first sector,
 which would be the first 512 bytes, from the disk into memory,
@@ -38,6 +44,14 @@ bootable disks from non-bootable disks.
 When the BIOS hands control to the OS, the CPU will be in real mode,
 which means it is using 16 bits per instruction. You must
 ensure that your program code for the bootloader begins in real mode.
+
+\begin{listing}[h]
+\caption{Booatloader}
+\begin{minted}[linenos,frame=single]{nasm}
+[org 0x7c00]		; memory load location
+[bits 16]		; real mode
+\end{minted}
+\end{listing}
 
 \newpage
 

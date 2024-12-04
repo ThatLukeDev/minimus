@@ -1,7 +1,9 @@
 bin/*
 kernel/libs/*.o
 file/bin/*
-*.log
-*.aux
-*.dvi
-*.toc
+
+docs/*.log
+docs/*.aux
+docs/*.dvi
+docs/*.toc
+docs/_*
