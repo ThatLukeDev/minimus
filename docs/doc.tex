@@ -1,0 +1,47 @@
+\documentclass{article}
+
+\title{OS Development}
+\author{Luke}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+This document serves as a reference for the Minimus operating system.
+
+\end{abstract}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Bootloader}
+
+The disk is ordered into sectors, of size 200$_{16}$, starting from sector 1.
+When the BIOS loads the OS, it copies the first sector,
+which would be the first 512 bytes, from the disk into memory,
+starting at 7C00$_{16}$.
+
+Memory is also ordered into segments, of size 10$_{16}$. This means that memory
+addresses can overlap, for example:
+The address 0000:7C00$_{16}$ is the same as 0700:0C00$_{16}$.
+
+You must ensure that the bytes at 1FE$_{16}$ and 1FF$_{16}$
+contain values 55$_{16}$ and AA$_{16}$ respectively.
+This is called the magic number, and is used to differentiate
+bootable disks from non-bootable disks.
+
+When the BIOS hands control to the OS, the CPU will be in real mode,
+which means it is using 16 bits per instruction. You must
+ensure that your program code for the bootloader begins in real mode.
+
+\newpage
+
+\begin{thebibliography}{99}
+\end{thebibliography}
+
+\end{document}
