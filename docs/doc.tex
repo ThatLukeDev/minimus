@@ -47,10 +47,79 @@ which means it is using 16 bits per instruction. This is because the CPU is in
 begins in 16 bit (assuming real) mode.
 
 \begin{listing}[h]
-\caption{Booatloader}
+\caption{bootloader/main.asm}
 \begin{minted}[linenos,frame=single]{nasm}
 [org 0x7c00]		; memory load location
 [bits 16]		; real mode
+\end{minted}
+\end{listing}
+
+\subsection{Disk read}
+
+Reading from the disk is done with Bios Interrupt 13$_{16}$ ah=02\cite{int 13h}.
+\\\\
+The interrupt specification is layed out below\cite{int 13h}:
+\\
+
+\begin{tabular}{|r|l|}
+	\hline
+	\textbf{Register} & \textbf{Value} \\
+	\hline
+	AH & 02 \\
+	\hline
+	AL & Number of sectors to read \\
+	\hline
+	CH & Cylinder \\
+	\hline
+	DH & Head \\
+	\hline
+	CL & Sector \\
+	\hline
+	DL & Drive \\
+	\hline
+	ES:BX & Output offset \\
+	\hline
+\end{tabular}
+\\\\\\
+Since the DL register is initialised with the boot drive before control
+is handed to our program\cite{boot drive init}, as long as it is not
+overwritten before calling int 13$_{16}$, you do not have to alter it.
+
+Since the ES register cannot be written to directly, due to no CPU instruction
+being availible to transfer a value to ES\cite{segment cpu write instruction},
+which results in an intemediary value needing to be used.
+
+I decided to use BX, due to it being overwritten used in the instruction after,
+but any unused register will do. Then, I assigned BX with 7e00$_{16}$, which is
+$200_{16}$ bytes more than the start of the program\cite{7c00}, which is the
+precise number of bytes loaded by the BIOS\cite{sector size}.
+
+The number of load segments (register AX)\cite{int 13h} have a limit of around 100
+on some systems, and around 70 on QEMU. 64 is a safe number of sectors to load,
+and allows for 32KB of kernel instructions (which is far more than enough).
+
+Sometimes there will be an error, stored in the carry bit\cite{int 13h}, if this
+happens, retry the load from disk. An error may also be indicated by the AL register
+having an incorrect number of sectors read.
+
+\begin{listing}[h]
+\caption{bootloader/main.asm}
+\begin{minted}[linenos,frame=single]{nasm}
+KERNEL_SEGS equ 64	; KERNEL_SEGS * 512
+
+; read kernel (https://en.wikipedia.org/wiki/INT_13H)
+mov bx, 0
+mov es, bx
+mov bx, 0x7e00		; offset
+mov ah, 0x02		; set read mode
+mov cl, 2		; start from sec 2
+mov al, KERNEL_SEGS	; sectors to read
+mov ch, 0		; cylinder
+mov dh, 0		; head
+int 0x13		; call
+jc $$			; carry bit stores error, loop
+cmp al, KERNEL_SEGS	; al is sectors read
+jne $$			; if all sectors arent read, loop
 \end{minted}
 \end{listing}
 
@@ -64,23 +133,31 @@ begins in 16 bit (assuming real) mode.
 	\bibitem{int 13h}
 		Ralf Brown (2000)
 		\emph{Ralf Browns Interrupt List}
-		INT 13
+		interrup b int 13
 	\bibitem{sector size}
 		IDEMA (2013)
 		\emph{The Advent of Advanced Format}
 		pg 1
 	\bibitem{memory segments}
 		Intel Corporation (2016)
-		\emph{Intel 64 and IA-32 Architectures Software Developer’s Manual}
-		vol 1 pg 1.6 ch 1.3.4
+		\emph{Intel 64 and IA-32 Architectures Software Developer’s Manual Volume 1: Basic Architecture}
+		pg 1.6 ch 1.3.4
 	\bibitem{55aa}
 		Compaq Computer Corporation, Phoenix Technologies Ltd, Intel Corporation (1996)
 		\emph{BIOS Boot Specification}
 		pg 12 ch 3.3
 	\bibitem{16bitstart}
 		Intel Corporation (2016)
-		\emph{Intel 64 and IA-32 Architectures Software Developer’s Manual}
-		vol 3a pg 11.13 ch 1.9.1
+		\emph{Intel 64 and IA-32 Architectures Software Developer’s Manual Volume 3A: System Programming Guide, Part 1}
+		pg 11.13 ch 1.9.1
+	\bibitem{boot drive init}
+		Compaq Computer Corporation, Phoenix Technologies Ltd, Intel Corporation (1996)
+		\emph{BIOS Boot Specification}
+		pg 43 ch D.1
+	\bibitem{segment cpu write instruction}
+		Intel Corporation (2024)
+		\emph{Intel 64 and IA-32 Architectures Software Developer’s Manual Volume 2 (2A, 2B, 2C, 2D): Instruction Set Reference, A-Z}
+		pg 4.35 ch 3.3
 \end{thebibliography}
 
 \end{document}
