@@ -46,13 +46,13 @@ which means it is using 16 bits per instruction. This is because the CPU is in
 16 bit mode by default. You must ensure that your program code for the bootloader
 begins in 16 bit (assuming real) mode.
 
-\begin{listing}[h]
-\caption{bootloader/main.asm}
-\begin{minted}[linenos,frame=single]{nasm}
+\begin{verbatim}
+bootloader/main.asm
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{nasm}
 [org 0x7c00]		; memory load location
 [bits 16]		; real mode
 \end{minted}
-\end{listing}
 
 \subsection{Disk read}
 
@@ -102,9 +102,10 @@ Sometimes there will be an error, stored in the carry bit\cite{int 13h}, if this
 happens, retry the load from disk. An error may also be indicated by the AL register
 having an incorrect number of sectors read.
 
-\begin{listing}[h]
-\caption{bootloader/main.asm}
-\begin{minted}[linenos,frame=single]{nasm}
+\begin{verbatim}
+bootloader/main.asm
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{nasm}
 KERNEL_SEGS equ 64	; KERNEL_SEGS * 512
 
 ; read kernel (https://en.wikipedia.org/wiki/INT_13H)
@@ -121,7 +122,6 @@ jc $$			; carry bit stores error, loop
 cmp al, KERNEL_SEGS	; al is sectors read
 jne $$			; if all sectors arent read, loop
 \end{minted}
-\end{listing}
 
 \subsection{Segment descriptor}
 
@@ -131,9 +131,10 @@ and is defined below in a basic form in order to switch to protected mode.
 For my kernel, none of the features of the GDT, like paging\cite{gdt page},
 are not needed, so the GDT is very basic.
 
-\begin{listing}[h]
-\caption{bootloader/main.asm}
-\begin{minted}[linenos,frame=single]{nasm}
+\begin{verbatim}
+bootloader/main.asm
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{nasm}
 jmp gdt_after
 
 ; segment descriptor (reverse order)
@@ -156,7 +157,66 @@ gdt_end:
 	dd gdt_start			; addr 24 bit
 gdt_after:
 \end{minted}
-\end{listing}
+
+\subsection{Usable memory}
+
+The amount of usable memory varies between systems,
+and some memory is reserved for hardware, VGA and VBE,
+console video memory, etc.
+
+Detecting availible memory blocks is done with interrupt
+15$_{16}$\cite{int 15h}. Although you can probably get
+away with ignoring this, and just hoping memory above,
+lets say 1mb, is completely fine, I went through the extra
+effort to correctly get usable memory.
+
+This area repeatedly calls int 15$_{16}$, and saves the result,
+if it is larger than the currently tested memory, in a memory location
+ironically not tested to see if it is reserved.
+
+The copying and checking is done in two parts due to the fact
+that the numbers are larger than the 16 bit memory availible in real mode.
+
+\begin{verbatim}
+bootloader/main.asm
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{nasm}
+; get largest availible memory block
+pusha			; push all
+mov cx, 0x0		; clear cx for addition later
+xor eax, eax
+mov es, eax
+mov ebx, 0x0		; clear
+mov edx, 0x534d4150	; magic value
+memreadloop:
+	mov eax, 0xe820	    ; magic value
+	mov ecx, 0x18	    ; magic value
+	mov di, 0x7bd0	    ; memory location for buffer
+	int 0x15	    ; call function
+	add di, cx    ; increment di by entry size
+	              ; (cx is 16 bit cl)
+memreadloopvalid:
+	mov eax, [0x7be0]    ; load type
+	cmp eax, 1	    ; check if 1 (availible memory)
+	jne memreadloopend    ; go to next otherwise
+memreadloopcheck:
+	mov eax, [0x7bda]	; load size of current
+	mov ecx, [0x7bfa]	; load size of biggest
+	cmp eax, ecx		; check if bigger
+	jle memreadloopend	; go to next otherwise
+memreadlooprecord:
+	mov eax, [0x7bd0]	; load address of current
+	mov [0x7bf0], eax	; record biggest address
+	mov eax, [0x7bd4]	; load address of current
+	mov [0x7bf4], eax	; record biggest address
+	mov eax, [0x7bd8]	; load size of current
+	mov [0x7bf8], eax	; record biggest size
+	mov eax, [0x7bdc]	; load size of current
+	mov [0x7bfc], eax	; record biggest size
+memreadloopend:
+	cmp ebx, 0		; check if next
+	jnz memreadloop		; repeat
+\end{minted}
 
 \newpage
 
@@ -201,6 +261,10 @@ gdt_after:
 		Wikipedia (2024)
 		\emph{Global Descriptor Table}
 		ch Modern Usage
+	\bibitem{int 15h}
+		OsDev (2024)
+		\emph{Detecting Memory (x86)}
+		ch 2.1
 \end{thebibliography}
 
 \end{document}
