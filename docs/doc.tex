@@ -123,6 +123,41 @@ jne $$			; if all sectors arent read, loop
 \end{minted}
 \end{listing}
 
+\subsection{Segment descriptor}
+
+The Global Descriptor Table is necessary for enabling protected mode\cite{gdt},
+and is defined below in a basic form in order to switch to protected mode.
+
+For my kernel, none of the features of the GDT, like paging\cite{gdt page},
+are not needed, so the GDT is very basic.
+
+\begin{listing}[h]
+\caption{bootloader/main.asm}
+\begin{minted}[linenos,frame=single]{nasm}
+jmp gdt_after
+
+; segment descriptor (reverse order)
+gdt_start:
+	dq 0		; null byte start
+gdt_code:
+	dw 0xffff	; segment limit
+	db 0,0,0	; segment base
+	db 0b10011010	; flags (see wiki)
+	db 0b11001111	; 4b flags (see wiki) + seg limit
+	db 0		; segment base
+gdt_data:
+	dw 0xffff	; segment limit
+	db 0,0,0	; segment base
+	db 0b10010010	; flags (see wiki)
+	db 0b11001111	; 4b flags (see wiki) + seg limit
+	db 0		; segment base
+gdt_end:
+	dw gdt_end - gdt_start - 1	; limit
+	dd gdt_start			; addr 24 bit
+gdt_after:
+\end{minted}
+\end{listing}
+
 \newpage
 
 \begin{thebibliography}{99}
@@ -155,9 +190,17 @@ jne $$			; if all sectors arent read, loop
 		\emph{BIOS Boot Specification}
 		pg 43 ch D.1
 	\bibitem{segment cpu write instruction}
-		Intel Corporation (2024)
+		Intel Corporation (2022)
 		\emph{Intel 64 and IA-32 Architectures Software Developer’s Manual Volume 2 (2A, 2B, 2C, 2D): Instruction Set Reference, A-Z}
 		pg 4.35 ch 3.3
+	\bibitem{gdt}
+		Wikipedia (2024)
+		\emph{Global Descriptor Table}
+		ch Description
+	\bibitem{gdt page}
+		Wikipedia (2024)
+		\emph{Global Descriptor Table}
+		ch Modern Usage
 \end{thebibliography}
 
 \end{document}
