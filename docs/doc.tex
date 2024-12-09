@@ -218,6 +218,55 @@ memreadloopend:
 	jnz memreadloop		; repeat
 \end{minted}
 
+\subsection{Display}
+
+\subsubsection{VGA}
+
+Enabling VGA\cite{vga} here allows me to get the font later,
+and also serves as compatibility for if VESA is supported.
+
+\begin{verbatim}
+bootloader/main.asm
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{nasm}
+; vga mode
+mov ah, 0x0		; graphics mode
+mov al, 0x13		; 256 colour 200x320
+int 0x10		; set vga mode
+\end{minted}
+
+\subsubsection{Font}
+
+The code below gets the font from the VGA card. This
+is so I did not have to store my own.
+
+The code is taken mostly from this OsDev page\cite{get vga font},
+due to the fact that I figured it was mostly copy paste anyway.
+
+\begin{verbatim}
+bootloader/main.asm
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{nasm}
+; get vga font
+mov eax, 0x100
+mov es, eax
+mov ax, 0x0
+mov di, ax
+push ds
+push es
+mov ax, 0x1130		; magic numbers
+mov bh, 0x6
+int 0x10		; get vga font
+;mov ds, es
+push es
+pop ds
+pop es
+mov si, bp
+mov cx, 0x400
+rep movsd
+pop ds
+\end{minted}
+
 \newpage
 
 \begin{thebibliography}{99}
@@ -265,6 +314,14 @@ memreadloopend:
 		OsDev (2024)
 		\emph{Detecting Memory (x86)}
 		ch 2.1
+	\bibitem{get vga font}
+		OsDev (2024)
+		\emph{VGA Fonts}
+		ch 2.4
+	\bibitem{vga}
+		Wikipedia (2024)
+		\emph{Mode 13h}
+		ch 2.4
 \end{thebibliography}
 
 \end{document}
