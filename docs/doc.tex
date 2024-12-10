@@ -283,7 +283,15 @@ the framebuffer, whether VBE is even supported in the first place, etc), are pla
 into another (not checked) area of memory, which will be used by the kernel later.
 
 I start by checking for VBE2 support, and if it doesn't exist I jump to the end of
-the VBE section. % needs work
+the VBE section.
+Then I go through each function, checking if it has RGB colourspace, and is the
+correct resolution.
+I then update the bytes at some position (again not fully checked) so my kernel has access
+to whether VBE was enabled or not, and also to provide the kernel with
+the position of the linear framebuffer.
+
+This is due to the fact that in VBE2, it is not required that all the VBE1 functions\ref{vbe}
+are supported (even though they most likely are).
 
 \begin{verbatim}
 bootloader/main.asm
@@ -478,6 +486,59 @@ popa			; pop all
 	12$_{16}$ & VGA & 640x480 & 16 \\
 	\hline
 	13$_{16}$ & VGA & 320x200 & 256 \\
+	\hline
+\end{tabular}
+
+\subsection{VBE1 Functions}
+\label{vbe}
+
+\begin{tabular}{|r|c|c|l|}
+	\hline
+	\textbf{Value} & \textbf{Type} & \textbf{Resolution} & \textbf{Colourspace} \\
+	\hline
+	100$_{16}$ & Graphics & 640x400 & 256 \\
+	\hline
+	101$_{16}$ & Graphics & 640x480 & 256 \\
+	\hline
+	103$_{16}$ & Graphics & 800x600 & 256 \\
+	\hline
+	104$_{16}$ & Graphics & 1024x768 & 16 \\
+	\hline
+	105$_{16}$ & Graphics & 1024x768 & 256 \\
+	\hline
+	106$_{16}$ & Graphics & 1280x1024 & 16 \\
+	\hline
+	107$_{16}$ & Graphics & 1280x1024 & 256 \\
+	\hline
+	10D$_{16}$ & Graphics & 320x200 & 32K (1:5:5:5) \\
+	\hline
+	10E$_{16}$ & Graphics & 320x200 & 64K (5:6:5) \\
+	\hline
+	10F$_{16}$ & Graphics & 320x200 & 16.8M (8:8:8) \\
+	\hline
+	110$_{16}$ & Graphics & 640x480 & 32K (1:5:5:5) \\
+	\hline
+	111$_{16}$ & Graphics & 640x480 & 64K (5:6:5) \\
+	\hline
+	112$_{16}$ & Graphics & 640x480 & 16.8M (8:8:8) \\
+	\hline
+	113$_{16}$ & Graphics & 800x600 & 32K (1:5:5:5) \\
+	\hline
+	114$_{16}$ & Graphics & 800x600 & 64K (5:6:5) \\
+	\hline
+	115$_{16}$ & Graphics & 800x600 & 16.8M (8:8:8) \\
+	\hline
+	116$_{16}$ & Graphics & 1024x768 & 32K (1:5:5:5) \\
+	\hline
+	117$_{16}$ & Graphics & 1024x768 & 64K (5:6:5) \\
+	\hline
+	118$_{16}$ & Graphics & 1024x768 & 16.8M (8:8:8) \\
+	\hline
+	119$_{16}$ & Graphics & 1280x1024 & 32K (1:5:5:5) \\
+	\hline
+	11A$_{16}$ & Graphics & 1280x1024 & 64K (5:6:5) \\
+	\hline
+	11B$_{16}$ & Graphics & 1280x1024 & 16.8M (8:8:8) \\
 	\hline
 \end{tabular}
 
