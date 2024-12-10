@@ -375,9 +375,38 @@ complete_vbe:
 popa			; pop all
 \end{minted}
 
+\subsection{Enabling 32-bit processing}
+
+To enable protected mode, you must first disable interrupts,
+loaad the global descriptor table, and enable the A20 line\cite{intel protected mode enable}.
+
+Upon the completion of all the above, you can then set bit 0 (starting from 0)
+to 1 in the control register CR0\cite{intel protected mode enable}.
+
+You must then immediately\cite{intel protected mode enable} perform a long jump
+to your next desired instruction.
+
+You then have to tell the assembler that you are now using 32 bits.
+
+\begin{verbatim}
+bootloader/main.asm
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{nasm}
+cli			; disable interrupts
+lgdt [gdt_end]		; gdt_end is descritor table descriptor
+mov eax, cr0
+or eax, 1		; set 1 bit in control register for protected mode
+mov cr0, eax
+jmp (gdt_code - gdt_start):bits32code	; stall cpu and flush all cache (as moving to different segment) to finalize protected mode
+
+; finally 32 bits
+[bits 32]
+bits32code:
+\end{minted}
+
 \newpage
 
-\section{Appendices}
+\section{Appendix}
 \appendix
 
 \subsection{INT 13$_{16}$ AH 02$_{16}$}
@@ -619,6 +648,10 @@ popa			; pop all
 		Video Electronics Standards Association (1998)
 		\emph{VESA BIOS EXTENSION (VBE) Core Functions Standard}
 		pg 17
+	\bibitem{intel protected mode enable}
+		Intel Corporation (2016)
+		\emph{Intel 64 and IA-32 Architectures Software Developer’s Manual Volume 3A: System Programming Guide, Part 1}
+		pg 9.17 ch 9.9.2
 \end{thebibliography}
 
 \end{document}
