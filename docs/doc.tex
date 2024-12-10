@@ -417,6 +417,58 @@ jmp (gdt_code - gdt_start):bits32code	; stall cpu and flush all cache (as moving
 bits32code:
 \end{minted}
 
+\subsection{Enabling the A20 line}
+
+Enabling the A20 line (the proper way) is by the keyboard. This is
+incredibly tedious and very repetitive, which is why I have taken
+this code from the OsDev page.
+
+Two small assembly functions: a20wait; a20waitr, have been created
+to avoid some of the repetition. a20wait will repeatedly poll
+port 64$_{16}$ until bit 1 is set (which is why \verb|TEST| is used).
+a20waitr will do the same until bit 0 is set. % needs a20 line reference and also appendix
+
+\begin{verbatim}
+bootloader/main.asm
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{nasm}
+xor al, al
+call a20wait		; wait for write
+mov al, 0xad
+out 0x64, al		; send 0xad
+call a20wait		; wait for write
+mov al, 0xd0
+out 0x64, al		; send 0xd0
+call a20waitr		; wait for read
+in al, 0x60		; get ack
+push eax
+call a20wait		; wait for write
+mov al, 0xd1
+out 0x64, al		; send 0xd1
+call a20wait		; wait for write
+pop eax			; eax gets overwritten
+or al, 0b0010		; a20 bit
+out 0x60, al		; set a20 bit on
+call a20wait		; wait for write
+mov al, 0xae
+out 0x64, al		; send 0xae
+call a20wait		; wait for generic
+jmp skipa20		; go to end
+a20wait:
+	in al, 0x64
+	test al,2
+	jnz a20wait
+	ret
+a20waitr:
+	in al, 0x64
+	test al,1
+	jz a20waitr
+	ret
+
+skipa20:
+jmp start_kernel
+\end{minted}
+
 \newpage
 
 \section{Appendix}
