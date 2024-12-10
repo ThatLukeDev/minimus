@@ -293,6 +293,9 @@ the position of the linear framebuffer.
 This is due to the fact that in VBE2, it is not required that all the VBE1 functions\ref{vbe}
 are supported (even though they most likely are).
 
+Enabling a VBE mode is as simple as VBE once the functions have been sorted, and
+is the same BIOS interrupt\ref{vbe enable}.
+
 \begin{verbatim}
 bootloader/main.asm
 \end{verbatim}
@@ -539,6 +542,21 @@ popa			; pop all
 	11A$_{16}$ & Graphics & 1280x1024 & 64K (5:6:5) \\
 	\hline
 	11B$_{16}$ & Graphics & 1280x1024 & 16.8M (8:8:8) \\
+	\hline
+\end{tabular}
+
+\subsection{INT 10$_{16}$ AX 4F02$_{16}$}
+\label{vbe enable}
+
+\begin{tabular}{|r|l|}
+	\hline
+	\textbf{Register} & \textbf{Value} \\
+	\hline
+	AX & 4F02$_{16}$ \\
+	\hline
+	BX & Mode \\
+	\hline
+	BX & 4XXX$_{16}$ for linear framebuffer \\
 	\hline
 \end{tabular}
 
