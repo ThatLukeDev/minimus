@@ -58,7 +58,7 @@ bootloader/main.asm
 
 Reading from the disk is done with Bios Interrupt 13$_{16}$ ah=02\cite{int 13h}.
 \\\\
-The interrupt specification is layed out below\cite{int 13h}:
+The interrupt specification is layed out below\ref{int 13 ah 02}:
 \\
 
 \begin{tabular}{|r|l|}
@@ -129,7 +129,7 @@ The Global Descriptor Table is necessary for enabling protected mode\cite{gdt},
 and is defined below in a basic form in order to switch to protected mode.
 
 For my kernel, none of the features of the GDT, like paging\cite{gdt page},
-are not needed, so the GDT is very basic.
+are not needed, so the GDT is very basic\ref{gdt}.
 
 \begin{verbatim}
 bootloader/main.asm
@@ -165,7 +165,7 @@ and some memory is reserved for hardware, VGA and VBE,
 console video memory, etc.
 
 Detecting availible memory blocks is done with interrupt
-15$_{16}$\cite{int 15h}. Although you can probably get
+15$_{16}$\cite{int 15h}\ref{int 15 0xe820}. Although you can probably get
 away with ignoring this, and just hoping memory above,
 lets say 1mb, is completely fine, I went through the extra
 effort to correctly get usable memory.
@@ -223,7 +223,9 @@ memreadloopend:
 \subsubsection{VGA}
 
 Enabling VGA\cite{vga} here allows me to get the font later,
-and also serves as compatibility for if VESA is supported.
+and also serves as compatibility for if VESA is not supported.
+
+The options for AL are defined\ref{vga}.
 
 \begin{verbatim}
 bootloader/main.asm
@@ -279,6 +281,9 @@ VBE spec\cite{vbe}.
 The resulting values (whether 24 bit or 32 bit colour is used, the location of
 the framebuffer, whether VBE is even supported in the first place, etc), are placed
 into another (not checked) area of memory, which will be used by the kernel later.
+
+I start by checking for VBE2 support, and if it doesn't exist I jump to the end of
+the VBE section. % needs work
 
 \begin{verbatim}
 bootloader/main.asm
@@ -361,6 +366,123 @@ popa			; pop all
 
 \newpage
 
+\section{Appendices}
+\appendix
+
+\subsection{INT 13$_{16}$ AH 02$_{16}$}
+\label{int 13 ah 02}
+
+\begin{tabular}{|r|l|}
+	\hline
+	\textbf{Register} & \textbf{Value} \\
+	\hline
+	AL & Number of sectors to read \\
+	\hline
+	CH & Cylinder \\
+	\hline
+	DH & Head \\
+	\hline
+	CL & Sector \\
+	\hline
+	DL & Drive \\
+	\hline
+	ES:BX & Output offset \\
+	\hline
+\end{tabular}
+
+\subsection{Segment Descriptor}
+\label{gdt}
+
+\begin{tabular}{|r|c|l|}
+	\hline
+	\textbf{Bits} & \textbf{Segment} & \textbf{Value} \\
+	\hline
+	0-15 & \emph{(1)} & Segment limit \\
+	\hline
+	16-39 & \emph{(1)} & Segment base \\
+	\hline
+	40-43 & \emph{(flag)} & Type \\
+	\hline
+	44 & \emph{(flag)} & S \\
+	\hline
+	45-46 & \emph{(flag)} & DPL \\
+	\hline
+	47 & \emph{(flag)} & P \\
+	\hline
+	48-51 & \emph{(2)} & Segment limit \\
+	\hline
+	52 & \emph{(flag)} & A \\
+	\hline
+	53 & \emph{(null)} & 0 \\
+	\hline
+	54 & \emph{(flag)} & DB \\
+	\hline
+	55 & \emph{(flag)} & G \\
+	\hline
+	56-63 & \emph{(2)} & Segment base \\
+	\hline
+\end{tabular}
+
+\subsection{INT 15$_{16}$ EAX E820$_{16}$}
+\label{int 15 0xe820}
+
+\begin{tabular}{|r|l|}
+	\hline
+	\textbf{Register} & \textbf{Value} \\
+	\hline
+	EAX & E820$_{16}$ \\
+	\hline
+	EBX & 0 \\
+	\hline
+	ECX & 24 \\
+	\hline
+	EDX & 534D4150$_{16}$ \\
+	\hline
+	ES:DI & Output buffer \\
+	\hline
+\end{tabular}
+
+\subsection{VGA Options}
+\label{vga}
+
+\begin{tabular}{|r|c|c|l|}
+	\hline
+	\textbf{Value} & \textbf{Type} & \textbf{Resolution} & \textbf{Colourspace} \\
+	\hline
+	00$_{16}$ & Text & 40x25 & 1 \\
+	\hline
+	01$_{16}$ & Text & 40x25 & 16 \\
+	\hline
+	02$_{16}$ & Text & 80x25 & 1 \\
+	\hline
+	03$_{16}$ & Text & 80x25 & 16 \\
+	\hline
+	04$_{16}$ & CGA & 320x200 & 4 \\
+	\hline
+	05$_{16}$ & CGA & 320x200 & 1 \\
+	\hline
+	06$_{16}$ & CGA & 640x200 & 2 \\
+	\hline
+	07$_{16}$ & MDA & 80x25 & 1 \\
+	\hline
+	0D$_{16}$ & EGA & 320x200 & 16 \\
+	\hline
+	0E$_{16}$ & EGA & 640x200 & 16 \\
+	\hline
+	0F$_{16}$ & EGA & 640x350 & 1 \\
+	\hline
+	10$_{16}$ & EGA & 640x350 & 16 \\
+	\hline
+	11$_{16}$ & VGA & 640x480 & 1 \\
+	\hline
+	12$_{16}$ & VGA & 640x480 & 16 \\
+	\hline
+	13$_{16}$ & VGA & 320x200 & 256 \\
+	\hline
+\end{tabular}
+
+\newpage
+
 \begin{thebibliography}{99}
 	\bibitem{7c00}
 		Compaq Computer Corporation, Phoenix Technologies Ltd, Intel Corporation (1996)
@@ -415,7 +537,7 @@ popa			; pop all
 		\emph{Mode 13h}
 		ch 2.4
 	\bibitem{vbe}
-		Wikipedia (1998)
+		Video Electronics Standards Association (1998)
 		\emph{VESA BIOS EXTENSION (VBE) Core Functions Standard}
 		pg 17
 \end{thebibliography}
