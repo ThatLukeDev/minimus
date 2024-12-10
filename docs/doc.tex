@@ -123,41 +123,6 @@ cmp al, KERNEL_SEGS	; al is sectors read
 jne $$			; if all sectors arent read, loop
 \end{minted}
 
-\subsection{Segment descriptor}
-
-The Global Descriptor Table is necessary for enabling protected mode\cite{gdt},
-and is defined below in a basic form in order to switch to protected mode.
-
-For my kernel, none of the features of the GDT, like paging\cite{gdt page},
-are not needed, so the GDT is very basic\ref{gdt}.
-
-\begin{verbatim}
-bootloader/main.asm
-\end{verbatim}
-\begin{minted}[linenos,frame=single,breaklines]{nasm}
-jmp gdt_after
-
-; segment descriptor (reverse order)
-gdt_start:
-	dq 0		; null byte start
-gdt_code:
-	dw 0xffff	; segment limit
-	db 0,0,0	; segment base
-	db 0b10011010	; flags (see wiki)
-	db 0b11001111	; 4b flags (see wiki) + seg limit
-	db 0		; segment base
-gdt_data:
-	dw 0xffff	; segment limit
-	db 0,0,0	; segment base
-	db 0b10010010	; flags (see wiki)
-	db 0b11001111	; 4b flags (see wiki) + seg limit
-	db 0		; segment base
-gdt_end:
-	dw gdt_end - gdt_start - 1	; limit
-	dd gdt_start			; addr 24 bit
-gdt_after:
-\end{minted}
-
 \subsection{Usable memory}
 
 The amount of usable memory varies between systems,
@@ -377,16 +342,46 @@ popa			; pop all
 
 \subsection{Enabling 32-bit processing}
 
+\subsubsection{Segment descriptor}
+
+The Global Descriptor Table is necessary for enabling protected mode\cite{gdt},
+and is defined below in a basic form in order to switch to protected mode.
+
+For my kernel, none of the features of the GDT, like paging\cite{gdt page},
+are not needed, so the GDT is very basic\ref{gdt}.
+
+\begin{verbatim}
+bootloader/main.asm
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{nasm}
+jmp gdt_after
+
+; segment descriptor (reverse order)
+gdt_start:
+	dq 0		; null byte start
+gdt_code:
+	dw 0xffff	; segment limit
+	db 0,0,0	; segment base
+	db 0b10011010	; flags (see wiki)
+	db 0b11001111	; 4b flags (see wiki) + seg limit
+	db 0		; segment base
+gdt_data:
+	dw 0xffff	; segment limit
+	db 0,0,0	; segment base
+	db 0b10010010	; flags (see wiki)
+	db 0b11001111	; 4b flags (see wiki) + seg limit
+	db 0		; segment base
+gdt_end:
+	dw gdt_end - gdt_start - 1	; limit
+	dd gdt_start			; addr 24 bit
+gdt_after:
+\end{minted}
+
+\subsubsection{Prerequisites}
+
 To enable protected mode, you must first disable interrupts,
-loaad the global descriptor table, and enable the A20 line\cite{intel protected mode enable}.
-
-Upon the completion of all the above, you can then set bit 0 (starting from 0)
-to 1 in the control register CR0\cite{intel protected mode enable}.
-
-You must then immediately\cite{intel protected mode enable} perform a long jump
-to your next desired instruction.
-
-You then have to tell the assembler that you are now using 32 bits.
+and load the global descriptor table\cite{intel protected mode enable},
+which can be done in NASM with commands \verb|cli| and \verb|lgdt [GDT ADDRESS]| respectively.
 
 \begin{verbatim}
 bootloader/main.asm
@@ -394,6 +389,24 @@ bootloader/main.asm
 \begin{minted}[linenos,frame=single,breaklines]{nasm}
 cli			; disable interrupts
 lgdt [gdt_end]		; gdt_end is descritor table descriptor
+\end{minted}
+
+\subsubsection{Protected mode}
+
+Upon the completion of all the above, you can then set bit 0 (starting from 0)
+to 1 in the control register CR0\cite{intel protected mode enable}, which must be done
+in seperate commands, as the special register CR0 is not directly assignable\cite{segment cpu write instruction}.
+
+You must then immediately\cite{intel protected mode enable} perform a long jump
+to your next desired instruction.
+
+You then have to tell the assembler that you are now using 32 bits, which can
+be done with the \verb|[bits 32]| command in NASM.
+
+\begin{verbatim}
+bootloader/main.asm
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{nasm}
 mov eax, cr0
 or eax, 1		; set 1 bit in control register for protected mode
 mov cr0, eax
