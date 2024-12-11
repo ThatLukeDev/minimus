@@ -419,14 +419,20 @@ bits32code:
 
 \subsection{Enabling the A20 line}
 
-Enabling the A20 line (the proper way) is by the keyboard. This is
-incredibly tedious and very repetitive, which is why I have taken
+Enabling the A20 line (the proper way) is by the keyboard\cite{a20}. This is
+incredibly tedious and repetitive, which is why I have taken
 this code from the OsDev page.
 
 Two small assembly functions: a20wait; a20waitr, have been created
 to avoid some of the repetition. a20wait will repeatedly poll
 port 64$_{16}$ until bit 1 is set (which is why \verb|TEST| is used).
-a20waitr will do the same until bit 0 is set. % needs a20 line reference and also appendix
+a20waitr will do the same until bit 0 is set.
+
+This is due to the fact that it is required to wait for bit 1 in port
+64$_{16}$ before writing and bit 0 in port 64$_{16}$ before reading.
+
+A brief outline of the functions of the A20 line are provided
+within this document\ref{a20}.
 
 \begin{verbatim}
 bootloader/main.asm
@@ -654,6 +660,27 @@ jmp start_kernel
 	\hline
 \end{tabular}
 
+\subsection{Enabling A20 Line through the Keyboard Controller}
+\label{a20}
+
+\begin{tabular}{|r|l|}
+	\hline
+	\textbf{Port} & \textbf{Value} \\
+	\hline
+	64$_{16}$ & AD$_{16}$ \\
+	\hline
+	64$_{16}$ & D0$_{16}$ \\
+	\hline
+	60$_{16}$ & \emph{read} \\
+	\hline
+	64$_{16}$ & D1$_{16}$ \\
+	\hline
+	60$_{16}$ & \emph{(read) $_{OR}$ 2} \\
+	\hline
+	64$_{16}$ & AE$_{16}$ \\
+	\hline
+\end{tabular}
+
 \newpage
 
 \begin{thebibliography}{99}
@@ -693,6 +720,10 @@ jmp start_kernel
 		Wikipedia (2024)
 		\emph{Global Descriptor Table}
 		ch Description
+	\bibitem{a20}
+		Robert Collins (2001)
+		\emph{A20/Reset Anomalies}
+		ch A20/Reset Anomalies
 	\bibitem{gdt page}
 		Wikipedia (2024)
 		\emph{Global Descriptor Table}
