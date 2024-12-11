@@ -587,6 +587,119 @@ void iowait() {
 }
 \end{minted}
 
+\subsection{Memory management}
+
+\subsubsection{The heap}
+
+The two most common ways to manage memory are the stack and the heap.
+We already have a stack, which is defined as 7000$_{16}$, and grows downwards,
+but we need a way to access more, and larger, memory, at random.
+
+I had already wrote a heap before, but had used the concept of object orientation,
+due to the fact I wrote it in my (then and still now) favourite language C++, which
+I cannot stop glazing (I believe my opinion may change after I try Rust).
+
+The heap is a large area of semi-organised data. The way I created my heap,
+it is organised into blocks, and each block points to both the previous and
+next block. As well as this, the size, and whether the block is occupied
+is stored.
+
+When giving memory, I simply add the size of \verb|memchunk| onto the pointer.
+I decided that no space for overflowing values will be required for this kernel.
+
+The main functions, excluding the utility functions and those required by the
+GCC compiler, are defined below, including how I implemented my heap.
+
+\begin{verbatim}
+kernel/libs/vga.c
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{c}
+#include "ioutils.h"
+
+struct memchunk {
+	struct memchunk* prev;
+	struct memchunk* next;
+	unsigned long size;
+	char occupied;
+};
+
+struct memchunk* heap;
+void initheap() {
+	heap = (struct memchunk*)(*(unsigned long*)0x7bf0);
+	heap->size = *(unsigned long*)0x7bf8;
+	heap->occupied = 0;
+}
+
+void* malloc(unsigned int size) {
+	struct memchunk* check = heap;
+	do {
+		if (check->size > size + 16 && !check->occupied) {
+			struct memchunk* nextchunk = (struct memchunk*)(check + size + 16);
+
+			nextchunk->size = check->size - size - 16;
+			nextchunk->prev = check;
+			nextchunk->next = check->next;
+			nextchunk->occupied = 0;
+
+			check->next = nextchunk;
+			check->size = size;
+			check->occupied = 1;
+
+			return check + 16;
+		}
+
+		check = check->next;
+	} while (check);
+	return 0;
+}
+
+struct memchunk* m_memchunkstartfreesegment(struct memchunk* check) {
+	if (check->prev && !check->prev->occupied)
+		return m_memchunkstartfreesegment(check->prev);
+	return check;
+}
+
+int free(void* ptr) {
+	struct memchunk* check = ptr - 16;
+
+	if ((check->prev && check->prev->next != check) || (check->next && check->next->prev != check)) {
+		return 1;
+	}
+
+	check->occupied = 0;
+
+	check = m_memchunkstartfreesegment(check);
+	while (check->next && !check->next->occupied) {
+		check->size += check->next->size;
+		check->next = check->next->next;
+	}
+	if (check->next)
+		check->next->prev = check;
+
+	return 0;
+}
+
+void* realloc(void* ptr, unsigned int size) {
+	struct memchunk* check = ptr - 16;
+	if (check->next && check->next->size >= size - check->size) { // 16 bit excluded as it is on both sides
+		check->size += check->next->size;
+		check->next = check->next->next;
+		return ptr;
+	}
+
+	// slower solution if next memory block isnt free
+	void* _ptr = malloc(size);
+
+	for (unsigned int i = 0; i < size; i++) {
+		*((char*)_ptr+i) = *((char*)ptr+i);
+	}
+
+	free(ptr);
+
+	return _ptr;
+}
+\end{minted}
+
 \subsection{VGA/VBE}
 
 VGA is outdated, so is only used as a backup in this OS, in case VBE2 fails
