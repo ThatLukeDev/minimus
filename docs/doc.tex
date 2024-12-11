@@ -827,6 +827,227 @@ void drawchar(int _x, int _y, unsigned char _char) {
 }
 \end{minted}
 
+\subsection{Keyboard Input}
+
+Getting input from the keyboard, mouse, clock, and others is done
+through the Program Interface Controller, which is a way of sending
+immediate jobs to the CPU, called interrupts.
+
+\subsubsection{Interrupt Descriptor Table}
+
+The Interrupt Descriptor Table\cite{lidt} is an array of values,
+where each index corresponds to an interrupt, and each value the
+memory location of that interrupt function.
+
+\begin{verbatim}
+kernel/libs/interrupts.c
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{nasm}
+global initidtasm
+global interrupthandler
+global idtdescriptor
+global idtaddr
+
+section .data
+
+idtdescriptor:
+	dw 256*8-1	; size
+idtaddr:
+	dd 0x10000	; address
+
+section .text
+
+initidtasm:
+	lidt [idtdescriptor]
+	ret
+
+%macro idt 1
+	extern idt%1
+	global _idt%1
+	_idt%1:
+		pusha
+		call idt%1
+		popa
+		iret
+%endmacro
+
+idt ...
+\end{minted}
+
+\begin{verbatim}
+kernel/libs/interrupts.c
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{c}
+#include "ioutils.h"
+
+void interrupthandler(unsigned char interrupt);
+
+struct idtelement {
+	unsigned short offset1; // offset 0-15
+	unsigned short selector; // a code segment selector in gdt
+	unsigned char base; // segment base (reserved) + ist
+	unsigned char attr; // gate type, dpl, and leftmost bit must be 1
+	unsigned short offset2; // offset 16-31
+};
+
+extern void* idtaddr;
+
+// https://en.wikipedia.org/wiki/Interrupt_descriptor_table
+void initidtelement(unsigned int num, unsigned int func, unsigned char trap) {
+	struct idtelement* element = (struct idtelement*)(idtaddr+num*8);
+	element->base = 0;
+	element->selector = 8;
+	element->attr = 0b10001110 | trap;
+	element->offset1 = (unsigned short)(func);
+	element->offset2 = (unsigned short)(func >> 16);
+}
+\end{minted}
+
+\subsubsection{Program Interface Controller}
+
+The PIC is what sends the signals for the interrupt to the CPU, so once
+interrupts have been tested and are working, the PIC must be programmed.
+
+The PIC should be set, to begin with, so that all interrupts (except the
+communication bus) are masked, and are unmasked as you need them. This is
+to save on processor time.
+
+You must first disable interrupts, then send the ICW1 signal to both the
+slave and master PIC (port 20$_{16}$ and A0$_{16}$ respectively). Then, you
+must set the vector offsets (ICW2), inform the PIC chips of each others
+existence (ICW3), and finally, enable 8086 mode (ICW4)\cite{lidt}.
+
+You are then able to set the mask such that only the chips can communicate,
+and enable the required PIC interrupts as you go along in your kernel.
+
+\begin{verbatim}
+kernel/libs/interrupts.c
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{c}
+#define PIC1 0x20 // master pic
+#define PIC2 0xa0 // slave pic
+
+#define PIC1_OFFSET 0x20
+#define PIC2_OFFSET (PIC1_OFFSET+8)
+
+void sendeoi(unsigned char reg) {
+	if (reg >= 8) {
+		outb(PIC2, 0x20);
+	}
+	outb(PIC1, 0x20);
+}
+
+// https://wiki.osdev.org/8259_PIC#Programming_the_PIC_chips
+void initpic() {
+	// disable interrupts
+	__asm__ volatile ("cli");
+
+	// each wait allows PIC to process
+
+	// set initialisation command for cascade (master and slave) (icw1)
+	outb(PIC1, 0x11);
+	iowait();
+	outb(PIC2, 0x11);
+	iowait();
+
+	// set vector offsets (icw2)
+	outb(PIC1+1, PIC1_OFFSET);
+	iowait();
+	outb(PIC2+1, PIC2_OFFSET);
+	iowait();
+
+	// inform master of slave pic (icw3)
+	outb(PIC1+1, 0b0100);
+	iowait();
+	// inform slave of slave pic (icw3)
+	outb(PIC2+1, 0b0010);
+	iowait();
+
+	// enable 8086 mode (icw4)
+	outb(PIC1+1, 0b0001);
+	iowait();
+	outb(PIC2+1, 0b0001);
+	iowait();
+
+	// masks
+	outb(PIC1+1, 0xff & ~(1 << 2));
+	outb(PIC2+1, 0xff);
+
+	// enable interrupts
+	__asm__ volatile ("sti");
+}
+
+void enablepic(unsigned char irq) {
+	unsigned short port = PIC1+1;
+
+	if (irq >= 8) {
+		port = PIC2+1;
+		irq -= 8;
+	}
+
+	unsigned char val = inb(port) & ~(1 << irq); // remove mask bit (set 0)
+	outb(port, val);
+}
+
+void disablepic(unsigned char irq) {
+	unsigned short port = PIC1+1;
+
+	if (irq >= 8) {
+		port = PIC2+1;
+		irq -= 8;
+	}
+
+	unsigned char val = inb(port) | (1 << irq); // add mask bit (set 1)
+	outb(port, val);
+}
+
+// https://pdos.csail.mit.edu/6.828/2014/readings/hardware/8259A.pdf
+// 4. INTERRUPT REQUEST REGISTER (IRR) AND IN-SERVICE REGISTER (ISR)
+unsigned short irqreg(int cmd) {
+	outb(PIC1, cmd);
+	outb(PIC2, cmd);
+	return (inb(PIC2) << 8) | inb(PIC1);
+}
+
+#define idtbody(x, y) \
+extern unsigned int _idt##y; \
+void idt##y() { \
+	interrupthandler(x); \
+	sendeoi(x); \
+} \
+
+#define idthead(x, y) \
+initidtelement(y, (unsigned int)&_idt##y, 0); \
+enablepic(x); \
+\end{minted}
+
+A helper function for the PIC is also defined, allowing
+easy binding of multiple functions to an interrupt.
+
+\begin{verbatim}
+kernel/libs/pic.c
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{c}
+void (*picFunc[16][16])();
+
+int addPicFunc(int pic, void (*func)()) {
+	for (int i = 0; i < 16; i++) {
+		if (!picFunc[pic][i]) {
+			picFunc[pic][i] = func;
+			return 0;
+		}
+	}
+	return -1;
+}
+
+// interrupts.h
+void interrupthandler(unsigned char interrupt) {
+	for (int i = 0; i < 16; i++)
+		if (picFunc[interrupt][i])
+			picFunc[interrupt][i]();
+}
+\end{minted}
+
 \newpage
 
 \section{Appendix}
@@ -1100,6 +1321,10 @@ void drawchar(int _x, int _y, unsigned char _char) {
 		Intel Corporation (2016)
 		\emph{Intel 64 and IA-32 Architectures Software Developer’s Manual Volume 3A: System Programming Guide, Part 1}
 		pg 9.17 ch 9.9.2
+	\bibitem{lidt}
+		Intel Corporation (2024)
+		\emph{Intel 64 and IA-32 Architectures Software Developer’s Manual Volume 2 (2A, 2B, 2C, 2D): Instruction Set Reference, A-Z}
+		pg 3.610 ch 3.3
 \end{thebibliography}
 
 \end{document}
