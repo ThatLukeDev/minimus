@@ -472,7 +472,68 @@ a20waitr:
 	ret
 
 skipa20:
-jmp start_kernel
+\end{minted}
+
+\subsection{Loading the Kernel}
+
+Before loading the kernel, I initialise all the registers high parts
+with the segment and move the stack pointers to 7000$_{16}$.
+
+The bootloader begins at 7c00$_{16}$\cite{7c00}, and because the
+stack grows downwards, 7000$_{16}$ is a perfect location for a
+stack. You can place yours where you like.
+
+\begin{verbatim}
+bootloader/main.asm
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{nasm}
+jmp (gdt_code - gdt_start):start_kernel
+
+start_kernel:
+	; segment registers init
+	mov ax, gdt_data - gdt_start
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	mov ss, ax
+
+	; stack pointers
+	mov esp, 0x7000		; top of stack
+	mov ebp, esp		; bottom of stack
+
+	call kernel		; start kernel and move back to segment
+
+; kernel
+kernel:
+	jmp kernel_loadseg	; hand control to kernel
+	jmp $$			; return -> error, loop
+
+			...
+
+; kernel load
+kernel_loadseg:
+call kernel_cseg
+jmp $				; if fail restart
+kernel_cseg:			; compiled c appeneded here
+\end{minted}
+
+\subsection{The boot signature}
+
+You must ensure that the bytes at 1FE$_{16}$ and 1FF$_{16}$
+contain values 55$_{16}$ and AA$_{16}$ respectively\cite{55aa}.
+This is called the boot signature, or magic number, and is used to differentiate
+bootable disks from non-bootable disks, and also tells the BIOS how to load your OS.
+
+\begin{verbatim}
+bootloader/main.asm
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{nasm}
+; padding
+times 510 - ($-$$) db 0
+
+; boot signature
+db 0x55,0xaa
 \end{minted}
 
 \newpage
