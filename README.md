@@ -1,6 +1,10 @@
 # Minimus
 A kernel? An OS? Something?
 
+The spec can be found [here](https://raw.githubusercontent.com/ThatLukeDev/minimus/refs/heads/main/docs/doc.pdf).
+
+---
+
 ## Run
 To run in a VM (faster), the command for qemu is `qemu-system-x86_64 -hda bin/os.img`.
 
