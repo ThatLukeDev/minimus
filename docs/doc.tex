@@ -1048,6 +1048,217 @@ void interrupthandler(unsigned char interrupt) {
 }
 \end{minted}
 
+\subsection{File system}
+
+\subsubsection{Reading from Disk}
+
+To read from the disk, you can switch back to real mode, or
+you can create a device driver.
+
+I decided to create a simple ATA driver, as it would work with
+most types of disks (due to most being compatible with ATA).
+
+There are many guides on ATA controllers, so I will not go into
+the details within this document. You could even use somebody
+else's, but I believe that the educational benefit of creating
+a device driver 
+
+The main principle of reading from the disk with ATA is that it
+is read in segments, and each segment is read at a certain time.
+You can figure out that time by either polling, or interrupts. I
+decided on polling as it is faster for now, but I may change the
+design later on.
+
+\begin{verbatim}
+kernel/libs/disk.c
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{c}
+#include "ioutils.h"
+#include "memory.h"
+
+void diskWait() {
+	for (int i = 0; i < 15; i++) {
+		inb(0x1f7);
+	}
+	unsigned char status = inb(0x1f7);
+	while ((status & 0b10000000 && !(status & 0b1000)))
+		status = inb(0x1f7);
+}
+
+void* diskReadSector(unsigned int lba, unsigned char sectors) {
+	unsigned short mallocSec = sectors;
+	if (mallocSec == 0)
+		mallocSec = 256;
+	unsigned char* buffer = malloc(mallocSec * 512);
+
+	outb(0x1f6, 0xe0 | ((lba >> 24) & 0x0f)); // drive and upper 4 bits of lba
+	outb(0x1f1, 0); // ignored but necessary on some systems
+	outb(0x1f2, sectors);
+	outb(0x1f3, lba); // lower 8 bits
+	outb(0x1f4, lba >> 8); // mid lower 8 bits
+	outb(0x1f5, lba >> 16); // mid upper 8 bits
+	outb(0x1f7, 0x20); // read flag
+
+	for (int sector = 0; sector < mallocSec; sector++) {
+		diskWait();
+
+		for (int i = 0; i < 256; i++) {
+			*(unsigned short*)(buffer + sector * 512 + i * 2) = inw(0x1f0);
+		}
+	}
+
+	return buffer;
+}
+
+void diskWriteSector(unsigned int lba, unsigned char sectors, unsigned char* buffer) {
+	unsigned short mallocSec = sectors;
+	if (mallocSec == 0)
+		mallocSec = 256;
+
+	outb(0x1f6, 0xe0 | ((lba >> 24) & 0x0f)); // drive and upper 4 bits of lba
+	outb(0x1f1, 0); // ignored but necessary on some systems
+	outb(0x1f2, sectors);
+	outb(0x1f3, lba); // lower 8 bits
+	outb(0x1f4, lba >> 8); // mid lower 8 bits
+	outb(0x1f5, lba >> 16); // mid upper 8 bits
+	outb(0x1f7, 0x30); // write flag
+
+	for (int sector = 0; sector < mallocSec; sector++) {
+		diskWait();
+
+		for (int i = 0; i < 256; i++) {
+			outw(0x1f0, *(unsigned int*)(buffer + sector * 512 + i * 2));
+		}
+	}
+}
+\end{minted}
+
+\subsubsection{Creating a pagefile}
+
+A pagefile is just a giant list of filenames and where that filename points
+to on the disk. It is similar to the implementation of the heap, except that
+all the list begins at the start, and is in one place. This saves us from
+having to check many different sectors on our disk for small pieces of fragmented
+information.
+
+For this kernel, since the amount of files will be relatively low, I have decided
+to load all of the files into memory. This, although inefficient on memory, will have
+hardly any impact. For example, a thousand files (with reasonable filename sizes of 10
+characters) will take up only 19kB, which is far less memory than is needed.
+
+It is for this reason that I have decided to load all of the filepage into memory, as
+the cost of loading them in and out of memory is (probably) more than the kilobytes of
+memory you will save.
+
+On user based operating systems, this cost isnt negligable, as they may have thousands of
+files, but I can easily change this code later on, so I have decided to do it this way.
+
+\begin{verbatim}
+kernel/libs/file.c
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{c}
+#include "disk.h"
+#include "strutils.h"
+#include "memory.h"
+
+#define PAGEADDRDISK 0x5000
+
+struct filePage {
+	unsigned long address;
+	unsigned long size;
+	char name;
+};
+#define filePageSize 20
+
+struct filePage* pageaddr;
+
+struct filePage* fileDescriptor(char* filename) {
+	struct filePage* ptr = pageaddr;
+
+	while (ptr->address) {
+		if (!strcmp(&(ptr->name), filename)) {
+			return ptr;
+		}
+		*((unsigned char*)&ptr) += strlen(&(ptr->name)) + filePageSize;
+	}
+
+	return (struct filePage*)0;
+}
+
+void* fileRead(char* filename) {
+	struct filePage* descriptor = fileDescriptor(filename);
+
+	if (descriptor)
+		return diskRead(descriptor->address, descriptor->size);
+	else
+		return (void*)0;
+}
+
+void fileDelete(char* filename) {
+	struct filePage* descriptor = fileDescriptor(filename);
+	if (!descriptor)
+		return;
+	unsigned int len = strlen(&(descriptor->name)) + filePageSize;
+	unsigned char* ptr = (unsigned char*)descriptor;
+
+	unsigned int conseqZero = 0;
+	for (unsigned long i = 0; conseqZero < len; i++) {
+		ptr[i] = ptr[i + len];
+		if (ptr[i] == 0)
+			conseqZero++;
+		else
+			conseqZero = 0;
+	}
+}
+
+void fileWrite(char* filename, unsigned char* buffer, unsigned long size) {
+	fileDelete(filename);
+
+	struct filePage* descriptor = pageaddr;
+	unsigned long descaddr = 0;
+
+	while (descriptor->address) {
+		descaddr = descriptor->address + descriptor->size;
+		*((unsigned char*)&descriptor) += strlen(&(descriptor->name)) + filePageSize;
+	}
+
+	descriptor->address = descaddr;
+	descriptor->size = size;
+	memcpy(&(descriptor->name), filename, strlen(filename));
+
+	diskWriteSector(PAGEADDRDISK / 512, 0, (void*)pageaddr);
+
+	diskWrite(descriptor->address, size, buffer);
+}
+
+char** fileList() {
+	int sizeTrack = sizeof(void*);
+	char** wordList = malloc(sizeTrack);
+	wordList[0] = (char*)0;
+
+	struct filePage* ptr = pageaddr;
+
+	while (ptr->address) {
+		sizeTrack += sizeof(void*);
+		wordList = realloc(wordList, sizeTrack);
+		wordList[sizeTrack / sizeof(void*) - 2] = &(ptr->name);
+		wordList[sizeTrack / sizeof(void*) - 1] = 0;
+		*((unsigned char*)&ptr) += strlen(&(ptr->name)) + filePageSize;
+	}
+
+	return wordList;
+}
+
+void initfs() {
+	pageaddr = (struct filePage*)diskReadSector(PAGEADDRDISK / 512, 0);
+	pageaddr->address = PAGEADDRDISK + 256 * 512;
+	pageaddr->size = 0;
+	pageaddr->name = 0;
+
+	diskWriteSector(PAGEADDRDISK / 512, 1, (void*)pageaddr);
+}
+\end{minted}
+
 \newpage
 
 \section{Appendix}
