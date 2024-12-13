@@ -134,6 +134,15 @@ idtbody(13, 45)
 idtbody(14, 46)
 idtbody(15, 47)
 
+#include "console.h"
+
+extern unsigned int _idt70;
+void idt70() {
+	int param = 0;
+	__asm__ volatile ("mov %%ebx, %0" : "=r"(param));
+	printf("a %d\n", param);
+}
+
 extern void initidtasm();
 void initidt() {
 	initpic();
@@ -153,6 +162,8 @@ void initidt() {
 	idthead(13, 45)
 	idthead(14, 46)
 	idthead(15, 47)
+
+	idthead(70, 70)
 
 	initidtasm();
 }
