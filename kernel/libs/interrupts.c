@@ -174,7 +174,7 @@ void idt74() {
 extern unsigned int _idt75;
 void idt75() {
 	*(unsigned int*)0x1000 = (unsigned int)&cursor;
-	*(unsigned int*)0x1010 = (unsigned int)&typecursor;
+	*(unsigned int*)0x1010 = (unsigned int)&_typecursor;
 	*(unsigned int*)0x1020 = (unsigned int)&showConsoleOutput;
 }
 
