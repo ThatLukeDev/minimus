@@ -1,9 +1,5 @@
-#ifndef LIB_CONSOLE
-#define LIB_CONSOLE
-
-extern void initconsole();
-
-extern char* cursor;
+#ifndef INT_CONSOLE
+#define INT_CONSOLE
 
 extern void clrscr();
 
@@ -13,11 +9,9 @@ extern void puts(char* s);
 
 extern void printf(char* str, ...);
 
-extern unsigned char showConsoleOutput;
+extern void showConsoleOutput();
 
 extern char getc();
 extern char* gets();
-
-extern char* _typecursor;
 
 #endif

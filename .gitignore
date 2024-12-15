@@ -1,6 +1,8 @@
 bin/*
 kernel/libs/*.o
 file/bin/*
+crosscompiler/bin/*
+crosscompiler/libs/*.o
 
 docs/*.log
 docs/*.aux

@@ -164,6 +164,20 @@ void idt73() {
 	__asm__ volatile ("cli");
 }
 
+// clrscr() -> void
+extern unsigned int _idt74;
+void idt74() {
+	clrscr();
+}
+
+// conargs() -> char*, +10 char*, +10 char*
+extern unsigned int _idt75;
+void idt75() {
+	*(unsigned int*)0x1000 = (unsigned int)&cursor;
+	*(unsigned int*)0x1010 = (unsigned int)&typecursor;
+	*(unsigned int*)0x1020 = (unsigned int)&showConsoleOutput;
+}
+
 extern void initidtasm();
 void initidt() {
 	initpic();
@@ -188,6 +202,8 @@ void initidt() {
 	idthead(71, 71)
 	idthead(72, 72)
 	idthead(73, 73)
+	idthead(74, 74)
+	idthead(75, 75)
 
 	initidtasm();
 }
