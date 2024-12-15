@@ -26,14 +26,6 @@ initidtasm:
 		iret
 %endmacro
 
-%macro rawidt 1
-	extern idt%1
-	global _idt%1
-	_idt%1:
-		call idt%1
-		iret
-%endmacro
-
 idt 32
 idt 33
 idt 35
@@ -50,4 +42,7 @@ idt 45
 idt 46
 idt 47
 
-rawidt 70
+idt 70
+idt 71
+idt 72
+idt 73

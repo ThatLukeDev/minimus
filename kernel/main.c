@@ -21,8 +21,11 @@ void main() {
 	initclock();
 	initfs();
 
-	__asm__ volatile ("pusha");
-	__asm__ volatile ("mov $60, %ebx");
-	__asm__ volatile ("int $70");
-	__asm__ volatile ("popa");
+	char* str = "Hello World!\nName: ";
+	*(unsigned int*)0x1000 = (unsigned int)str;
+	__asm__ volatile ("int $71");
+
+	__asm__ volatile ("int $73");
+
+	printf("Hello %s!\n", (char*)(*(unsigned int*)0x1000));
 }

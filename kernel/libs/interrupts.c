@@ -136,11 +136,32 @@ idtbody(15, 47)
 
 #include "console.h"
 
+// putc(char) -> void
 extern unsigned int _idt70;
 void idt70() {
-	int param = 0;
-	__asm__ volatile ("mov %%ebx, %0" : "=r"(param));
-	printf("a %d\n", param);
+	putc(*(char*)0x1000);
+}
+
+// puts(char*) -> void
+extern unsigned int _idt71;
+void idt71() {
+	puts((char*)(*(unsigned int*)0x1000));
+}
+
+// getc() -> char
+extern unsigned int _idt72;
+void idt72() {
+	__asm__ volatile ("sti");
+	*(char*)0x1000 = getc();
+	__asm__ volatile ("cli");
+}
+
+// gets() -> char*
+extern unsigned int _idt73;
+void idt73() {
+	__asm__ volatile ("sti");
+	*(unsigned int*)0x1000 = (unsigned int)gets();
+	__asm__ volatile ("cli");
 }
 
 extern void initidtasm();
@@ -164,6 +185,9 @@ void initidt() {
 	idthead(15, 47)
 
 	idthead(70, 70)
+	idthead(71, 71)
+	idthead(72, 72)
+	idthead(73, 73)
 
 	initidtasm();
 }
