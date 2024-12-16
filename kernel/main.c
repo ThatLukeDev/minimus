@@ -22,4 +22,6 @@ void main() {
 	initfs();
 
 	fileExec("helloworld.min");
+
+	printf("\n-\n-\n3 newlines");
 }
