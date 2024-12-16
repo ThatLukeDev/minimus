@@ -178,6 +178,26 @@ void idt75() {
 	*(unsigned int*)0x1020 = (unsigned int)&showConsoleOutput;
 }
 
+#include "memory.h"
+
+// malloc(int size) -> void*
+extern unsigned int _idt76;
+void idt76() {
+	*(unsigned int*)0x1000 = (unsigned int)malloc(*(unsigned int*)0x1000);
+}
+
+// free(void* ptr) -> int
+extern unsigned int _idt77;
+void idt77() {
+	*(unsigned int*)0x1000 = (unsigned int)free((void*)*(unsigned int*)0x1000);
+}
+
+// realloc(void* ptr, unsigned int size) -> void*
+extern unsigned int _idt78;
+void idt78() {
+	*(unsigned int*)0x1000 = (unsigned int)realloc((void*)*(unsigned int*)0x1000, *(unsigned int*)0x1010);
+}
+
 extern void initidtasm();
 void initidt() {
 	initpic();
@@ -204,6 +224,10 @@ void initidt() {
 	idthead(73, 73)
 	idthead(74, 74)
 	idthead(75, 75)
+
+	idthead(76, 76)
+	idthead(77, 77)
+	idthead(78, 78)
 
 	initidtasm();
 }
