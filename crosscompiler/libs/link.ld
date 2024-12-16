@@ -1,5 +1,7 @@
+ENTRY(main)
+
 SECTIONS {
-	.text 0x7e07 : { *(.text*) }
+	.text : { *(.text.main) *(.text*) }
 	.rodata : { *(.rodata) }
 	.data : { *(.data) }
 	.bss : { *(.bss) }

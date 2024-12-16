@@ -6,7 +6,7 @@
 
 inline void putc(char c) {
 	*(char*)0x1000 = c;
-	__asm__ volatile ("int $71");
+	__asm__ volatile ("int $70");
 }
 
 inline void puts(char* s) {
