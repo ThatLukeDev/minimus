@@ -1,7 +1,10 @@
 #include "console.h"
 
 int main() {
-	printf("Hello World!");
+	putc('H');
+	putc('i');
+	putc('!');
+	//printf("Hello World!");
 
 	return 0;
 }
