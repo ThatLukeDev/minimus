@@ -21,11 +21,5 @@ void main() {
 	initclock();
 	initfs();
 
-	char* str = "Hello World!\nName: ";
-	*(unsigned int*)0x1000 = (unsigned int)str;
-	__asm__ volatile ("int $71");
-
-	__asm__ volatile ("int $73");
-
-	printf("Hello %s!\n", (char*)(*(unsigned int*)0x1000));
+	fileExec("helloworld.min");
 }

@@ -1,3 +1,6 @@
+out.min: bin/out.bin
+	cp $< $@
+
 bin/out.bin: bin/out.elf
 	objcopy -O binary $^ $@
 
@@ -17,3 +20,4 @@ bin:
 clean:
 	cd libs && make clean
 	rm bin/*
+	rm out.min

@@ -35,6 +35,14 @@ void* fileRead(char* filename) {
 		return (void*)0;
 }
 
+void fileExec(char* filename) {
+	char* instructions = fileRead(filename);
+
+	__asm__ volatile ("call %0" : : "r"(instructions));
+
+	free(instructions);
+}
+
 void fileDelete(char* filename) {
 	struct filePage* descriptor = fileDescriptor(filename);
 	if (!descriptor)

@@ -3,6 +3,7 @@ kernel/libs/*.o
 file/bin/*
 crosscompiler/bin/*
 crosscompiler/libs/*.o
+crosscompiler/*.min
 
 docs/*.log
 docs/*.aux

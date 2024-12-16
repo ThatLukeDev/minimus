@@ -8,4 +8,6 @@ extern char** fileList();
 
 extern void initfs();
 
+extern void fileExec(char* filename);
+
 #endif

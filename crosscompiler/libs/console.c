@@ -29,22 +29,22 @@ void clrscr() {
 }
 
 void showConsoleOutput(char val) {
-	*(char*)0x1000 = val;
 	__asm__ volatile ("int $75");
+	**(char**)0x1000 = val;
 }
 
 void printf(char* str, ...) {
 	va_list ap;
 
-	__asm__ volatile ("int $76");
+	__asm__ volatile ("int $75");
 
-	char* cursor = *(char**)0x1000;
-	char* _typecursor = *(char**)0x1010;
+	char** cursor = (char**)0x1000;
+	char** _typecursor = (char**)0x1010;
 
 	va_start(ap, str);
 	while (*str != 0) {
 		if (*str == '\n') {
-			cursor = (char*)((cursor - VMEM_START) / LINE_WIDTH * LINE_WIDTH + LINE_WIDTH + VMEM_START);
+			*cursor = (char*)((*cursor - VMEM_START) / LINE_WIDTH * LINE_WIDTH + LINE_WIDTH + VMEM_START);
 		}
 		else if(*str == '%') {
 			str++;
@@ -116,6 +116,6 @@ void printf(char* str, ...) {
 		}
 		str++;
 	}
-	_typecursor = cursor;
+	*_typecursor = *cursor;
 	va_end(ap);
 }
