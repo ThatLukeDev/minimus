@@ -1,17 +1,20 @@
 void* malloc(unsigned int size) {
 	*(unsigned int*)0x1000 = size;
 	__asm__ volatile ("int $76");
+	return (*(void**)0x1000);
 }
 
 int free(void* ptr) {
 	*(unsigned int*)0x1000 = (unsigned int)ptr;
 	__asm__ volatile ("int $77");
+	return (*(int*)0x1000);
 }
 
 void* realloc(void* ptr, unsigned int size) {
 	*(unsigned int*)0x1000 = (unsigned int)ptr;
 	*(unsigned int*)0x1010 = size;
 	__asm__ volatile ("int $78");
+	return (*(void**)0x1000);
 }
 
 void* calloc(unsigned int size, unsigned int n) {

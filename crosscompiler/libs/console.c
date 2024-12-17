@@ -30,7 +30,7 @@ inline void clrscr() {
 
 inline void showConsoleOutput(char val) {
 	__asm__ volatile ("int $75");
-	**(char**)0x1000 = val;
+	**(char**)0x1020 = val;
 }
 
 void printf(char* str, ...) {
@@ -38,8 +38,8 @@ void printf(char* str, ...) {
 
 	__asm__ volatile ("int $75");
 
-	char** cursor = (char**)0x1000;
-	char** _typecursor = (char**)0x1010;
+	char** cursor = *(char***)0x1000;
+	char** _typecursor = *(char***)0x1010;
 
 	va_start(ap, str);
 	while (*str != 0) {
