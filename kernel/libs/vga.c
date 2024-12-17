@@ -12,7 +12,7 @@ unsigned char vbeEnabled = 0;
 unsigned char vbeAlpha = 3;
 unsigned char* vbeFramebuffer = (unsigned char*)0x0;
 
-unsigned char* font = (unsigned char*)0x1000; // defined in bootloader/main.asm
+unsigned char* font = (unsigned char*)0x1100; // defined in bootloader/main.asm
 
 void drawpixel(int _x, int _y, unsigned char r, unsigned char g, unsigned char b) {
 	if (vbeEnabled) {

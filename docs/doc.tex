@@ -215,7 +215,7 @@ bootloader/main.asm
 \end{verbatim}
 \begin{minted}[linenos,frame=single,breaklines]{nasm}
 ; get vga font
-mov eax, 0x100
+mov eax, 0x110
 mov es, eax
 mov ax, 0x0
 mov di, ax
@@ -738,7 +738,7 @@ unsigned char vbeEnabled = 0;
 unsigned char vbeAlpha = 3;
 unsigned char* vbeFramebuffer = (unsigned char*)0x0;
 
-unsigned char* font = (unsigned char*)0x1000; // defined in bootloader/main.asm
+unsigned char* font = (unsigned char*)0x1100; // defined in bootloader/main.asm
 
 void initvga() {
 	vbeEnabled = *(unsigned char*)0x2200;

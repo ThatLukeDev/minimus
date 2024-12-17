@@ -80,7 +80,7 @@ mov al, 0x13		; 256 colour 200x320
 int 0x10		; set vga mode
 
 ; get vga font
-mov eax, 0x100
+mov eax, 0x110
 mov es, eax
 mov ax, 0x0
 mov di, ax

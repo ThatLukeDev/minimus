@@ -198,6 +198,14 @@ void idt78() {
 	*(unsigned int*)0x1000 = (unsigned int)realloc((void*)*(unsigned int*)0x1000, *(unsigned int*)0x1010);
 }
 
+#include "vga.h"
+
+// drawpixel(int x, int y, char r, char g, char b) -> void
+extern unsigned int _idt79;
+void idt79() {
+	drawpixel(*(int*)0x1000, *(int*)0x1010, *(char*)0x1020, *(char*)0x1021, *(char*)0x1022);
+}
+
 extern void initidtasm();
 void initidt() {
 	initpic();
@@ -228,6 +236,8 @@ void initidt() {
 	idthead(76, 76)
 	idthead(77, 77)
 	idthead(78, 78)
+
+	idthead(79, 79)
 
 	initidtasm();
 }
