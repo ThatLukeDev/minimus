@@ -1,19 +1,17 @@
 #ifndef INT_CONSOLE
 #define INT_CONSOLE
 
-#include "console.c"
+extern void clrscr();
 
-extern inline void clrscr() __attribute__((always_inline));
+extern void putc(char c);
 
-extern inline void putc(char c) __attribute__((always_inline));
-
-extern inline void puts(char* s) __attribute__((always_inline));
+extern void puts(char* s);
 
 extern void printf(char* str, ...);
 
-extern inline void showConsoleOutput(char val) __attribute__((always_inline));
+extern void showConsoleOutput(char val);
 
-extern char getc() __attribute__((always_inline));
-extern char* gets() __attribute__((always_inline));
+extern char getc();
+extern char* gets();
 
 #endif

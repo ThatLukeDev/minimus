@@ -6,9 +6,6 @@ extern void fileWrite(char* filename, unsigned char* buffer, unsigned long size)
 extern void fileDelete(char* filename);
 extern char** fileList();
 
-extern void initfs();
-extern struct filePage* pageaddr;
-
 extern void fileExec(char* filename);
 
 #endif

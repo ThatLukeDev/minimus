@@ -4,31 +4,31 @@
 
 #include <stdarg.h>
 
-inline void putc(char c) {
+void putc(char c) {
 	*(char*)0x1000 = c;
 	__asm__ volatile ("int $70");
 }
 
-inline void puts(char* s) {
+void puts(char* s) {
 	*(unsigned int*)0x1000 = (unsigned int)s;
 	__asm__ volatile ("int $71");
 }
 
-inline char getc() {
+char getc() {
 	__asm__ volatile ("int $72");
 	return *(char*)0x1000;
 }
 
-inline char* gets() {
+char* gets() {
 	__asm__ volatile ("int $73");
 	return (char*)(*(unsigned int*)0x1000);
 }
 
-inline void clrscr() {
+void clrscr() {
 	__asm__ volatile ("int $74");
 }
 
-inline void showConsoleOutput(char val) {
+void showConsoleOutput(char val) {
 	__asm__ volatile ("int $75");
 	**(char**)0x1020 = val;
 }

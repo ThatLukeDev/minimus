@@ -206,6 +206,28 @@ void idt79() {
 	drawpixel(*(int*)0x1000, *(int*)0x1010, *(char*)0x1020, *(char*)0x1021, *(char*)0x1022);
 }
 
+#include "disk.h"
+
+// readdisksegment(int lba, char sectors) -> void*
+extern unsigned int _idt80;
+void idt80() {
+	*(unsigned int*)0x1000 = (unsigned int)diskReadSector(*(unsigned int*)0x1000, *(char*)0x1010);
+}
+
+// readdisksegment(int lba, char sectors) -> void*
+extern unsigned int _idt81;
+void idt81() {
+	diskWriteSector(*(unsigned int*)0x1000, *(char*)0x1010, (void*)*(unsigned int*)0x1020);
+}
+
+#include "file.h"
+
+// getfilepage() -> void*
+extern unsigned int _idt82;
+void idt82() {
+	*(unsigned int*)0x1000 = (unsigned int)&pageaddr;
+}
+
 extern void initidtasm();
 void initidt() {
 	initpic();
@@ -238,6 +260,10 @@ void initidt() {
 	idthead(78, 78)
 
 	idthead(79, 79)
+
+	idthead(80, 80)
+	idthead(81, 81)
+	idthead(82, 82)
 
 	initidtasm();
 }

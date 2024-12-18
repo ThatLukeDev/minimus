@@ -2,12 +2,9 @@
 #include "memory.h"
 #include "vga.h"
 #include "graphics.h"
+#include "file.h"
 
 int main() {
-	printf("Hello World!\n");
-	char* mem = malloc(1000);
-	printf("1000 bytes: %x\n", mem);
-
 	for (int i = 10; i < 100; i += 10)
 		drawoutline(i, i, 640 - i, 480 - i, 255, 255, 255);
 
@@ -15,6 +12,14 @@ int main() {
 
 	char* text = "Hello World!";
 	drawtext(text, 150, 150, 32, 0, 0, 255);
+
+	char* filename = "image.ppm";
+	unsigned char* ppmimage = fileRead(filename);
+	struct image img = loadPPM(ppmimage);
+	free(ppmimage);
+
+	drawimage(img, 128, 192);
+	free(img.data);
 
 	return 0;
 }

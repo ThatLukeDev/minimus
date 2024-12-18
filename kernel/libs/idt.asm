@@ -54,3 +54,7 @@ idt 77
 idt 78
 
 idt 79
+
+idt 80
+idt 81
+idt 82

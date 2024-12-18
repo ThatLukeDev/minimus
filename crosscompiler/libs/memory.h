@@ -1,12 +1,13 @@
 #ifndef INT_MEMORY
 #define INT_MEMORY
 
-#include "memory.c"
+extern void* malloc(unsigned int size);
+extern int free(void* ptr);
+extern void* realloc(void* ptr, unsigned int size);
 
-extern inline void* malloc(unsigned int size) __attribute__((always_inline));
-
-extern inline int free(void* ptr) __attribute__((always_inline));
-
-extern inline void* realloc(void* ptr, unsigned int size) __attribute__((always_inline));
+extern void* memcpy(void* dest, const void* src, unsigned int n);
+extern void* memset(void* s, int c, unsigned int n);
+extern void* memmove(void* dest, const void* src, unsigned int n);
+extern int memcmp(const void* s1, const void* s2, unsigned int n);
 
 #endif
