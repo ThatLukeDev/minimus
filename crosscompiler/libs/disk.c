@@ -3,12 +3,15 @@
 void* diskReadSector(unsigned int lba, unsigned char sectors) {
 	*(unsigned int*)0x1000 = lba;
 	*(unsigned char*)0x1010 = sectors;
+	__asm__ volatile ("int $80");
+	return (void*)(*(unsigned int*)0x1000);
 }
 
 void diskWriteSector(unsigned int lba, unsigned char sectors, unsigned char* buffer) {
 	*(unsigned int*)0x1000 = lba;
 	*(unsigned char*)0x1010 = sectors;
 	*(unsigned int*)(0x1020) = (unsigned int)buffer;
+	__asm__ volatile ("int $81");
 }
 
 void* diskRead(unsigned long addr, unsigned long size) {

@@ -225,7 +225,7 @@ void idt81() {
 // getfilepage() -> void*
 extern unsigned int _idt82;
 void idt82() {
-	*(unsigned int*)0x1000 = (unsigned int)&pageaddr;
+	*(unsigned int*)0x1000 = (unsigned int)pageaddr;
 }
 
 extern void initidtasm();
