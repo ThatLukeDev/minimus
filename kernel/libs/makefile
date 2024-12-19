@@ -5,7 +5,7 @@ lib.o: $(ASMOBJS) $(OBJS)
 	ar cr $@ $^
 
 $(OBJS): %.o: %.c
-	gcc -m32 -c $^ -Wno-builtin-declaration-mismatch -o $@ -mno-sse -mno-red-zone
+	gcc -m32 -c $^ -Wno-stringop-overread -Wno-builtin-declaration-mismatch -o $@ -mno-sse -mno-red-zone
 
 $(ASMOBJS): %.o: %.asm
 	nasm -f elf32 $^ -o $@

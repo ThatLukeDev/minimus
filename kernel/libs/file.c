@@ -17,7 +17,7 @@ struct filePage* fileDescriptor(char* filename) {
 	struct filePage* ptr = pageaddr;
 
 	while (ptr->address) {
-		if (!strcmp(&(ptr->name), filename)) {
+		if (!strcmp((char*)(&(ptr->name)+1), filename)) {
 			return ptr;
 		}
 		*((unsigned char*)&ptr) += strlen(&(ptr->name)) + filePageSize;
@@ -90,7 +90,7 @@ char** fileList() {
 	while (ptr->address) {
 		sizeTrack += sizeof(void*);
 		wordList = realloc(wordList, sizeTrack);
-		wordList[sizeTrack / sizeof(void*) - 2] = &(ptr->name);
+		wordList[sizeTrack / sizeof(void*) - 2] = &(ptr->name)+1;
 		wordList[sizeTrack / sizeof(void*) - 1] = 0;
 		*((unsigned char*)&ptr) += strlen(&(ptr->name)) + filePageSize;
 	}

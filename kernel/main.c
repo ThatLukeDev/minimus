@@ -22,8 +22,6 @@ void main() {
 	initfs();
 
 	printf("Welcome to Minimus! Type 'help' for a list of commands\n");
-	printf("(.min files are executable, but you can call them what you like)\n");
-	printf("(executing a non-executable file will crash)\n");
 
 	while (1) {
 		printf("> ");
@@ -31,6 +29,7 @@ void main() {
 
 		if (!strcmp(input, "help")) {
 			printf("ls            Lists all files\n");
+			printf("lse           Lists executable files\n");
 			printf("[name]        Execute [name]\n");
 		}
 		else if (!strcmp(input, "ls")) {
@@ -42,12 +41,25 @@ void main() {
 
 			free(files);
 		}
+		else if (!strcmp(input, "lse")) {
+			char** files = fileList();
+
+			for (int i = 0; files[i] != 0; i++) {
+				if (files[i][-1] == '1')
+					printf("%s\n", files[i]);
+			}
+
+			free(files);
+		}
 		else {
 			char** files = fileList();
 
 			for (int i = 0; files[i] != 0; i++) {
 				if (!strcmp(files[i], input)) {
-					fileExec(input);
+					if (files[i][-1] == '1')
+						fileExec(input);
+					else
+						printf("ERROR: File not executable\n");
 				}
 			}
 
