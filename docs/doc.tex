@@ -1379,6 +1379,36 @@ void main() {
 }
 \end{minted}
 
+\subsubsection{Executing files}
+
+For execution of files, kernel functions were defined as interrupts,
+such that they could be called by executable files. These interrupts
+were then included as a part of a standard library inside the crosscompiler
+folder. The code for one such interrupt pair has been included below.
+
+\begin{verbatim}
+kernel/libs/interrupts.c
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{c}
+// readdisksegment(int lba, char sectors) -> void*
+extern unsigned int _idt80;
+void idt80() {
+	*(unsigned int*)0x1000 = (unsigned int)diskReadSector(*(unsigned int*)0x1000, *(char*)0x1010);
+}
+\end{minted}
+
+\begin{verbatim}
+crosscompiler/libs/interrupts.c
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{c}
+void* diskReadSector(unsigned int lba, unsigned char sectors) {
+	*(unsigned int*)0x1000 = lba;
+	*(unsigned char*)0x1010 = sectors;
+	__asm__ volatile ("int $80");
+	return (void*)(*(unsigned int*)0x1000);
+}
+\end{minted}
+
 \newpage
 
 \section{Appendix}
