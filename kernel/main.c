@@ -27,10 +27,20 @@ void main() {
 		printf("> ");
 		char* input = gets();
 
+		char* args = 0;
+
+		for (int i = 0; i < strlen(input); i++) {
+			if (input[i] == ' ') {
+				input[i] = 0;
+				args = input + i + 1;
+				break;
+			}
+		}
+
 		if (!strcmp(input, "help")) {
-			printf("ls            Lists all files\n");
-			printf("lse           Lists executable files\n");
-			printf("[name]        Execute [name]\n");
+			printf("ls               Lists all files\n");
+			printf("lse              Lists executable files\n");
+			printf("[name] [args]    Execute [name]\n");
 		}
 		else if (!strcmp(input, "ls")) {
 			char** files = fileList();
@@ -57,7 +67,7 @@ void main() {
 			for (int i = 0; files[i] != 0; i++) {
 				if (!strcmp(files[i], input)) {
 					if (files[i][-1] == '1')
-						fileExec(input);
+						fileExec(input, args);
 					else
 						printf("ERROR: File not executable\n");
 				}

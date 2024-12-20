@@ -38,8 +38,10 @@ void* fileRead(char* filename) {
 		return (void*)0;
 }
 
-void fileExec(char* filename) {
+void fileExec(char* filename, char* args) {
 	char* instructions = fileRead(filename);
+
+	*(char**)0x1000 = args;
 
 	__asm__ volatile ("call %0" : : "r"(instructions));
 
