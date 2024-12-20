@@ -34,6 +34,9 @@ distros, and can be run with \verb|make|.
 On Windows, it is recommended to use WSL (Windows Subsystem for Linux) to
 build the program.
 
+Running \verb|make| also rebuilds the file system, clearing all files created
+by the Minimus kernel.
+
 \subsection{Emulation}
 
 To emulate minimus, I recommend either Bochs or Qemu. For bochs, the bochsrc
@@ -42,7 +45,38 @@ file is included in the base directory (as .bochsrc), and can be started with
 \verb|qemu-system-x86_64| \verb|-device| \verb|ich9-intel-hda| \verb|-hda bin/os.img|. You may need to
 use a VNC viewer to view the OS (at least I had to, as I was using wayland).
 
-\addtocontents{toc}{\protect\newpage}
+\section{Development}
+
+\subsection{Kernel main}
+
+The Minimus starting point is the \verb|main()| function (found in
+\verb|kernel/main.c|). It is integral to write your additional code after
+all of the \verb|init...()| functions, as they are necessary for starting
+up Minimus and getting stuff going.
+
+\subsection{Using the crosscompiler}
+
+I included a compiler within this project in order to make applications for
+the Minimus operating system. This way, the Kernel \verb|main()| function can
+stay quite small.
+The \verb|crosscompiler/main.c| file will be used as the source file when
+\verb|make| is run within the \verb|crosscompiler| folder.
+
+The makefile automatically links all Kernel functions, and more, in a sort
+of standard library to abstract away all the irritating low level functions,
+and the list of functions, their definitions, and usage is provided within
+the Standard Library section.
+
+\subsection{Including files}
+
+As well as the executable file, any other files referenced also have to be
+included within \verb|file/files|, which will then be compiled into the
+Minimus file format (I haven't made a name for it yet). Executable files
+must be prefaced with \verb|1|, and other characters for file permissions
+have not yet been decided, for now, \verb|0| will save for everything but
+executable files.
+
+\addtocontents{toc}{\vphantom{0}\protect\newline\vphantom{0}\protect\newline\vphantom{0}\protect\newline\centering{--------------------------CONTINUES ON NEXT PAGE--------------------------}\protect\newpage}
 
 \newpage
 
