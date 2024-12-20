@@ -4,7 +4,7 @@
 \usepackage[newfloat]{minted}
 \captionsetup[listing]{position=top}
 
-\title{OS Development}
+\title{Minimus OS}
 \author{Luke}
 
 \begin{document}
@@ -20,6 +20,29 @@ This document serves as a reference for the Minimus operating system.
 \newpage
 
 \tableofcontents
+
+\newpage
+
+\section{Running}
+
+\subsection{Building}
+
+To build Minimus, a GNU Makefile has been included in the base directory,
+this can be run with the GNU Make tool, which is standard on most linux
+distros, and can be run with \verb|make|.
+
+On Windows, it is recommended to use WSL (Windows Subsystem for Linux) to
+build the program.
+
+\subsection{Emulation}
+
+To emulate minimus, I recommend either Bochs or Qemu. For bochs, the bochsrc
+file is included in the base directory (as .bochsrc), and can be started with
+\verb|bochs -q|. For Qemu, you can emulate with
+\verb|qemu-system-x86_64| \verb|-device| \verb|ich9-intel-hda| \verb|-hda bin/os.img|. You may need to
+use a VNC viewer to view the OS (at least I had to, as I was using wayland).
+
+\addtocontents{toc}{\protect\newpage}
 
 \newpage
 
