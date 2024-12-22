@@ -1,5 +1,5 @@
 # Minimus
-A kernel? An OS? Something?
+An (inefficient) OS.
 
 The spec can be found [here](https://raw.githubusercontent.com/ThatLukeDev/minimus/refs/heads/main/docs/doc.pdf).
 
