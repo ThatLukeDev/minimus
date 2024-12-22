@@ -121,12 +121,7 @@ enum scancodes {
 
 extern char scancodetoascii[256];
 
-extern unsigned char keyStates[128];
-
-extern void (*keyboardHooks[256])(char);
-extern int addKeyboardHook(void (*func)(char));
+extern void addKeyboardHook(void (*func)(char));
 extern void removeKeyboardHook(void (*func)(char));
-
-extern void initkeyboard();
 
 #endif

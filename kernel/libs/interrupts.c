@@ -228,6 +228,20 @@ void idt82() {
 	*(unsigned int*)0x1000 = (unsigned int)pageaddr;
 }
 
+#include "keyboard.h"
+
+// addKeyboardHook(void*()) -> void
+extern unsigned int _idt83;
+void idt83() {
+	addKeyboardHook((void*)*(unsigned int*)0x1000);
+}
+
+// removeKeyboardHook(void*()) -> void
+extern unsigned int _idt84;
+void idt84() {
+	removeKeyboardHook((void*)*(unsigned int*)0x1000);
+}
+
 extern void initidtasm();
 void initidt() {
 	initpic();
@@ -264,6 +278,9 @@ void initidt() {
 	idthead(80, 80)
 	idthead(81, 81)
 	idthead(82, 82)
+
+	idthead(83, 83)
+	idthead(84, 84)
 
 	initidtasm();
 }

@@ -28,7 +28,7 @@ char scancodetoascii[256] = {
 	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 };
 
-unsigned char keyStates[64];
+unsigned char keyStates[128];
 
 void (*keyboardHooks[256])(char);
 
@@ -56,7 +56,20 @@ int addKeyboardHook(void (*func)(char)) {
 	return -1;
 }
 
+void removeKeyboardHook(void (*func)(char)) {
+	int offset = 0;
+
+	for (int i = 0; i < 256 - offset; i++) {
+		if (keyboardHooks[i] == func) {
+			offset = 1;
+		}
+		keyboardHooks[i] = keyboardHooks[i + offset];
+	}
+}
+
 void initkeyboard() {
+	for (int i = 0; i < 256; i++)
+		keyboardHooks[i] = 0;
 	addPicFunc(1, keyStateChanged);
 	for (int i = 0; i < 64; i++) {
 		keyStates[i] = 1;
