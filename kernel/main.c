@@ -37,44 +37,25 @@ void main() {
 			}
 		}
 
-		if (!strcmp(input, "help")) {
-			printf("ls               Lists all files\n");
-			printf("lse              Lists executable files\n");
-			printf("[name] [args]    Execute [name]\n");
-		}
-		else if (!strcmp(input, "ls")) {
-			char** files = fileList();
+		char** files = fileList();
 
-			for (int i = 0; files[i] != 0; i++) {
-				printf("%s\n", files[i]);
-			}
-
-			free(files);
-		}
-		else if (!strcmp(input, "lse")) {
-			char** files = fileList();
-
-			for (int i = 0; files[i] != 0; i++) {
-				if (files[i][-1] == '1')
-					printf("%s\n", files[i]);
-			}
-
-			free(files);
-		}
-		else {
-			char** files = fileList();
-
-			for (int i = 0; files[i] != 0; i++) {
-				if (!strcmp(files[i], input)) {
-					if (files[i][-1] == '1')
-						fileExec(input, args);
-					else
-						printf("ERROR: File not executable\n");
+		char foundFile = 0;
+		for (int i = 0; files[i] != 0; i++) {
+			if (!strcmp(files[i], input)) {
+				if (files[i][-1] == '1') {
+					fileExec(input, args);
+					foundFile = 1;
+				}
+				else {
+					printf("File not executable\n");
 				}
 			}
-
-			free(files);
 		}
+		if (!foundFile) {
+			printf("Command not found\n");
+		}
+
+		free(files);
 
 		free(input);
 	}

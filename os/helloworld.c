@@ -5,12 +5,15 @@
 #include "file.h"
 
 int main() {
-	char* args = *(char**)0x1000;
+	char* text = *(char**)0x1000;
 
-	char* text = "Hello World!";
+	if (!text) {
+		printf("USAGE: helloworld [TEXT]\n");
 
-	if (args)
-		text = args;
+		printf("Outputs a nice pretty picture and the text specified in blue\n");
+
+		return -1;
+	}
 
 	for (int i = 10; i < 100; i += 10)
 		drawoutline(i, i, 640 - i, 480 - i, 255, 255, 255);

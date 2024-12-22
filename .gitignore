@@ -4,6 +4,8 @@ file/bin/*
 crosscompiler/bin/*
 crosscompiler/libs/*.o
 crosscompiler/*.min
+os/*.tmp
+file/files/1*
 
 docs/*.log
 docs/*.aux
