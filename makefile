@@ -21,7 +21,8 @@ bin/kernel.elf: bin/kernel.o kernel/libs/lib.o
 bin/kernel.bin: bin/kernel.elf
 	objcopy -O binary $^ $@
 
-file/bin/blob: file/files/*
+file/bin/blob: file/files/* os/*.c
+	cd os && make
 	cd file && make
 
 bin:
