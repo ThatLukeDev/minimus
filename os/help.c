@@ -6,7 +6,7 @@ int main() {
 	char* text = *(char**)0x1000;
 
 	if (text) {
-		fileExec(text, 0);
+		fileExec(text, "-h");
 	}
 	else {
 		printf("USAGE: help [command]\n");

@@ -3,16 +3,23 @@
 #include "vga.h"
 #include "graphics.h"
 #include "file.h"
+#include "strutils.h"
 
 int main() {
-	char* text = *(char**)0x1000;
+	char* args = *(char**)0x1000;
 
-	if (!text) {
-		printf("USAGE: helloworld [TEXT]\n");
+	char* text = "Hello World!";
+
+	if (!strcmp(args, "-h")) {
+		printf("USAGE: helloworld [TEXT?]\n");
 
 		printf("Outputs a nice pretty picture and the text specified in blue\n");
 
 		return -1;
+	}
+
+	if (args) {
+		text = args;
 	}
 
 	for (int i = 10; i < 100; i += 10)
