@@ -4,6 +4,7 @@ file/bin/*
 crosscompiler/bin/*
 crosscompiler/libs/*.o
 crosscompiler/*.min
+crosscompiler/main.c
 os/*.tmp
 file/files/1*
 

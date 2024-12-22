@@ -118,6 +118,7 @@ void printf(char* str, ...) {
 		str++;
 	}
 	_typecursor = cursor;
+
 	va_end(ap);
 }
 
