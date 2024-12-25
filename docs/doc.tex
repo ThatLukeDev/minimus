@@ -45,6 +45,15 @@ file is included in the base directory (as .bochsrc), and can be started with
 \verb|qemu-system-x86_64| \verb|-device| \verb|ich9-intel-hda| \verb|-hda bin/os.img|. You may need to
 use a VNC viewer to view the OS (at least I had to, as I was using wayland).
 
+\subsection{Deployment}
+
+The raw file, after compilation, will be located in \verb|bin/os.img|, and can
+be loaded onto any disk with Linux \verb|dd|, then ran with any BIOS compatible
+hardware.
+
+Please note that the system must have legacy BIOS support, as \verb|Minimus| does
+not run with UEFI.
+
 \section{Development}
 
 \subsection{Kernel main}
@@ -75,6 +84,16 @@ Minimus file format (I haven't made a name for it yet). Executable files
 must be prefaced with \verb|1|, and other characters for file permissions
 have not yet been decided, for now, \verb|0| will save for everything but
 executable files.
+
+\subsection{Including executable files}
+
+Executable files will be automatically compiled and prepended with the
+executable tag \verb|1| when included within the \verb|os| folder.
+
+The executable file will take the name of the filename minus the \verb|.c|
+extension, prepended with the usual \verb|1| executable indicator, and
+also allows the use of all the header files found within the crosscompiler
+(as it literally copies the files into there to be compiled).
 
 \addtocontents{toc}{\vphantom{0}\protect\newline\vphantom{0}\protect\newline\vphantom{0}\protect\newline\centering{--------------------------CONTINUES ON NEXT PAGE--------------------------}\protect\newpage}
 
