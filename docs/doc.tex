@@ -95,6 +95,112 @@ extension, prepended with the usual \verb|1| executable indicator, and
 also allows the use of all the header files found within the crosscompiler
 (as it literally copies the files into there to be compiled).
 
+\section{Kernel libraries}
+
+The kernel libraries are a set of interrupt based functions that can be called
+via an interrupt from any running program.
+
+They take a value from a select memory location, and outputs at select memory
+locations, and (unless you want to make the functions yourself) are how you
+interface with the system, in opening files, writing to disk, displaying images,
+etc.
+
+\addtocontents{toc}{\vphantom{0}\protect\newline\vphantom{0}\protect\newline\vphantom{0}\protect\newline\centering{--------------------------CONTINUES ON NEXT PAGE--------------------------}\protect\newpage}
+
+\newpage
+
+\subsection{Console}
+
+\subsubsection{putc}
+
+\paragraph{Interrupt 46$_{16}$}
+
+Prints a character to the console window.
+
+\paragraph{Operands}
+
+\begin{tabular}{|r|c|c|l|}
+	\hline
+	\textbf{Location} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\
+	\hline
+	1000$_{16}$ & 1 & In & Character \\
+	\hline
+\end{tabular}
+
+\subsubsection{puts}
+
+\paragraph{Interrupt 47$_{16}$}
+
+Prints a string to the console window.
+
+\paragraph{Operands}
+
+\begin{tabular}{|r|c|c|l|}
+	\hline
+	\textbf{Location} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\
+	\hline
+	1000$_{16}$ & 4 & In & Pointer to string \\
+	\hline
+\end{tabular}
+
+\subsubsection{getc}
+
+\paragraph{Interrupt 48$_{16}$}
+
+Gets a character from the console.
+
+\paragraph{Operands}
+
+\begin{tabular}{|r|c|c|l|}
+	\hline
+	\textbf{Location} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\
+	\hline
+	1000$_{16}$ & 4 & Out & Character \\
+	\hline
+\end{tabular}
+
+\subsubsection{gets}
+
+\paragraph{Interrupt 49$_{16}$}
+
+Gets a string from the console.
+
+\paragraph{Operands}
+
+\begin{tabular}{|r|c|c|l|}
+	\hline
+	\textbf{Location} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\
+	\hline
+	1000$_{16}$ & 4 & Out & Pointer to string* \\
+	\hline
+\end{tabular}
+
+* String must be free'd after use.
+
+\subsubsection{clrscr}
+
+\paragraph{Interrupt 4A$_{16}$}
+
+Clears the console.
+
+\subsubsection{conargs}
+
+\paragraph{Interrupt 4B$_{16}$}
+
+Gets pointer to console variables.
+
+\begin{tabular}{|r|c|c|l|}
+	\hline
+	\textbf{Location} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\
+	\hline
+	1000$_{16}$ & 4 & Out (**) & Cursor \\
+	\hline
+	1010$_{16}$ & 4 & Out (**) & User cursor \\
+	\hline
+	1020$_{16}$ & 4 & Out (*) & Show console output \\
+	\hline
+\end{tabular}
+
 \addtocontents{toc}{\vphantom{0}\protect\newline\vphantom{0}\protect\newline\vphantom{0}\protect\newline\centering{--------------------------CONTINUES ON NEXT PAGE--------------------------}\protect\newpage}
 
 \newpage
