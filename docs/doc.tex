@@ -189,6 +189,8 @@ Clears the console.
 
 Gets pointer to console variables.
 
+\paragraph{Operands}
+
 \begin{tabular}{|r|c|c|l|}
 	\hline
 	\textbf{Location} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\
@@ -200,6 +202,70 @@ Gets pointer to console variables.
 	1020$_{16}$ & 4 & Out (*) & Show console output \\
 	\hline
 \end{tabular}
+
+\subsection{Memory allocation}
+
+\subsubsection{malloc}
+
+\paragraph{Interrupt 4C$_{16}$}
+
+Allocates X amount of bytes.
+
+\paragraph{Operands}
+
+\begin{tabular}{|r|c|c|l|}
+	\hline
+	\textbf{Location} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\
+	\hline
+	1000$_{16}$ & 4 & In & Size \\
+	\hline
+\end{tabular}
+
+* Memory must be free'd after use.
+
+\subsubsection{free}
+
+\paragraph{Interrupt 4D$_{16}$}
+
+Frees the memory at X.
+
+\paragraph{Operands}
+
+\begin{tabular}{|r|c|c|l|}
+	\hline
+	\textbf{Location} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\
+	\hline
+	1000$_{16}$ & 4 & In (*) & Pointer \\
+	\hline
+	1000$_{16}$ & 1 & Out & Success \\
+	\hline
+\end{tabular}
+
+* There is no force check for double free. Program carefully, or utilise the output.
+
+\subsubsection{realloc}
+
+\paragraph{Interrupt 4E$_{16}$}
+
+Reallocates the memory with different size.
+Is often more efficient than basic free, and malloc, as it
+tries to use the same memory position.
+
+\paragraph{Operands}
+
+\begin{tabular}{|r|c|c|l|}
+	\hline
+	\textbf{Location} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\
+	\hline
+	1000$_{16}$ & 4 & In (*) & Pointer \\
+	\hline
+	1010$_{16}$ & 4 & In (*) & Size \\
+	\hline
+	1000$_{16}$ & 1 & Out & Success \\
+	\hline
+\end{tabular}
+
+* There is no force check for double free. Program carefully, or utilise the output.
 
 \addtocontents{toc}{\vphantom{0}\protect\newline\vphantom{0}\protect\newline\vphantom{0}\protect\newline\centering{--------------------------CONTINUES ON NEXT PAGE--------------------------}\protect\newpage}
 
