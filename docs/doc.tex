@@ -295,6 +295,50 @@ Draws pixel to screen
 	\hline
 \end{tabular}
 
+\subsection{Disk}
+
+\subsubsection{diskreadsector}
+
+\paragraph{Interrupt 50$_{16}$}
+
+Reads X disk sectors (512 bytes).
+
+\paragraph{Operands}
+
+\begin{tabular}{|r|c|c|l|}
+	\hline
+	\textbf{Location} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\
+	\hline
+	1000$_{16}$ & 4 & In & LBA \\
+	\hline
+	1010$_{16}$ & 1 & In & Sectors \\
+	\hline
+	1000$_{16}$ & 4 & Out (*) & Buffer \\
+	\hline
+\end{tabular}
+
+* Automatically allocates memory, no need to pass a buffer.
+
+\subsubsection{diskwritesector}
+
+\paragraph{Interrupt 51$_{16}$}
+
+Writes to disk sectors (512 bytes).
+
+\paragraph{Operands}
+
+\begin{tabular}{|r|c|c|l|}
+	\hline
+	\textbf{Location} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\
+	\hline
+	1000$_{16}$ & 4 & In & LBA \\
+	\hline
+	1010$_{16}$ & 1 & In & Sectors \\
+	\hline
+	1020$_{16}$ & 4 & In (*) & Buffer \\
+	\hline
+\end{tabular}
+
 \addtocontents{toc}{\vphantom{0}\protect\newline\vphantom{0}\protect\newline\vphantom{0}\protect\newline\centering{--------------------------CONTINUES ON NEXT PAGE--------------------------}\protect\newpage}
 
 \newpage
