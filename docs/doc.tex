@@ -105,8 +105,6 @@ locations, and (unless you want to make the functions yourself) are how you
 interface with the system, in opening files, writing to disk, displaying images,
 etc.
 
-\addtocontents{toc}{\vphantom{0}\protect\newline\vphantom{0}\protect\newline\vphantom{0}\protect\newline\centering{--------------------------CONTINUES ON NEXT PAGE--------------------------}\protect\newpage}
-
 \newpage
 
 \subsection{Console}
@@ -338,6 +336,63 @@ Writes to disk sectors (512 bytes).
 	1020$_{16}$ & 4 & In (*) & Buffer \\
 	\hline
 \end{tabular}
+
+\subsection{File system}
+
+\subsubsection{getfilepage}
+
+\paragraph{Interrupt 52$_{16}$}
+
+Gets file page location.
+
+\paragraph{Operands}
+
+\begin{tabular}{|r|c|c|l|}
+	\hline
+	\textbf{Location} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\
+	\hline
+	1000$_{16}$ & 4 & Out (*) & Filepage \\
+	\hline
+\end{tabular}
+
+\subsection{Keyboard interrupt}
+
+\subsubsection{addKeyboardInterrupt}
+
+\paragraph{Interrupt 53$_{16}$}
+
+Adds a keyboard interrupt. Calls the function at X when input from
+the keyboard is detected.
+
+\paragraph{Operands}
+
+\begin{tabular}{|r|c|c|l|}
+	\hline
+	\textbf{Location} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\
+	\hline
+	1000$_{16}$ & 4 & In (*) & Function pointer \\
+	\hline
+\end{tabular}
+
+* Removing keyboard hook is not automatic, and must be done manually.
+
+\subsubsection{delKeyboardInterrupt}
+
+\paragraph{Interrupt 54$_{16}$}
+
+Removes keyboard hook to X.
+
+\paragraph{Operands}
+
+\begin{tabular}{|r|c|c|l|}
+	\hline
+	\textbf{Location} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\
+	\hline
+	1000$_{16}$ & 4 & In (*) & Function pointer \\
+	\hline
+\end{tabular}
+
+* Must be done before removing function data.
 
 \addtocontents{toc}{\vphantom{0}\protect\newline\vphantom{0}\protect\newline\vphantom{0}\protect\newline\centering{--------------------------CONTINUES ON NEXT PAGE--------------------------}\protect\newpage}
 
