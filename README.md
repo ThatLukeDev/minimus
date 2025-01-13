@@ -20,6 +20,10 @@ To build, install all dependencies and run `make`.
 |  GNUMake   |  `make`               |
 |  GCC       |  `gcc`                |
 |  NASM      |  `nasm`               |
+
+## Virtualized environments
+|  Name      |  PKG                  |
+|------------|-----------------------|
 |  qemu      |  `qemu-system-x86_64` |
 |  bochs     |  `bochs`              |
 
