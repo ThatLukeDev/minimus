@@ -259,13 +259,41 @@ tries to use the same memory position.
 	\hline
 	1000$_{16}$ & 4 & In (*) & Pointer \\
 	\hline
-	1010$_{16}$ & 4 & In (*) & Size \\
+	1010$_{16}$ & 4 & In & Size \\
 	\hline
 	1000$_{16}$ & 1 & Out & Success \\
 	\hline
 \end{tabular}
 
 * There is no force check for double free. Program carefully, or utilise the output.
+
+\subsection{Display}
+
+\subsubsection{drawpixel}
+
+\paragraph{Interrupt 4F$_{16}$}
+
+Draws pixel to screen
+
+\paragraph{Operands}
+
+\begin{tabular}{|r|c|c|l|}
+	\hline
+	\textbf{Location} & \textbf{Size} & \textbf{Type} & \textbf{Description} \\
+	\hline
+	1000$_{16}$ & 4 & In & X Position \\
+	\hline
+	1010$_{16}$ & 4 & In & Y Position \\
+	\hline
+	1020$_{16}$ & 1 & In & Red \\
+	\hline
+	1021$_{16}$ & 1 & In & Green \\
+	\hline
+	1022$_{16}$ & 1 & In & Blue \\
+	\hline
+	1000$_{16}$ & 1 & Out & Success \\
+	\hline
+\end{tabular}
 
 \addtocontents{toc}{\vphantom{0}\protect\newline\vphantom{0}\protect\newline\vphantom{0}\protect\newline\centering{--------------------------CONTINUES ON NEXT PAGE--------------------------}\protect\newpage}
 
