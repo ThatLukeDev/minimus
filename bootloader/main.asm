@@ -161,6 +161,12 @@ mov ax, [0x2200 + 40]	; framebuffer
 mov [0x2200 + 2], ax	; framebuffer
 mov ax, [0x2200 + 42]	; framebuffer
 mov [0x2200 + 4], ax	; framebuffer
+mov ax, [0x2200 + 32]	; offset
+mov [0x2200 + 6], ax	; offset
+mov ax, [0x2200 + 34]	; offset
+mov [0x2200 + 7], ax	; offset
+mov ax, [0x2200 + 36]	; offset
+mov [0x2200 + 8], ax	; offset
 mov ax, 0x4f02		; magic number
 mov bx, cx		; move mode number
 or bx, 0x4000		; set linear framebuffer
@@ -183,38 +189,9 @@ jmp (gdt_code - gdt_start):bits32code	; stall cpu and flush all cache (as moving
 [bits 32]
 bits32code:
 
-xor al, al
-call a20wait		; wait for write
-mov al, 0xad
-out 0x64, al		; send 0xad
-call a20wait		; wait for write
-mov al, 0xd0
-out 0x64, al		; send 0xd0
-call a20waitr		; wait for read
-in al, 0x60		; get ack
-push eax
-call a20wait		; wait for write
-mov al, 0xd1
-out 0x64, al		; send 0xd1
-call a20wait		; wait for write
-pop eax			; eax gets overwritten
-or al, 0b0010		; a20 bit
-out 0x60, al		; set a20 bit on
-call a20wait		; wait for write
-mov al, 0xae
-out 0x64, al		; send 0xae
-call a20wait		; wait for generic
-jmp skipa20		; go to end
-a20wait:
-	in al,0x64
-	test al,2
-	jnz a20wait
-	ret
-a20waitr:
-	in al,0x64
-	test al,1
-	jz a20waitr
-	ret
+in al, 0x92
+or al, 2
+out 0x92, al
 
 skipa20:
 ; stall cpu and flush all cache (as moving to different segment) to keep protected mode
@@ -239,6 +216,9 @@ start_kernel:
 kernel:
 	jmp kernel_loadseg	; hand control to kernel
 	jmp $$			; return -> error, loop
+
+times 446 - ($-$$) db 0
+db 0x80
 
 ; padding
 times 510 - ($-$$) db 0

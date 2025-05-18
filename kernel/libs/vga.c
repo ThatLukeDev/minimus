@@ -10,15 +10,18 @@ extern void getvgafont();
 #define VBE_HEIGHT 480
 unsigned char vbeEnabled = 0;
 unsigned char vbeAlpha = 3;
+unsigned char rOffset = 1;
+unsigned char gOffset = 2;
+unsigned char bOffset = 3;
 unsigned char* vbeFramebuffer = (unsigned char*)0x0;
 
 unsigned char* font = (unsigned char*)0x1100; // defined in bootloader/main.asm
 
 void drawpixel(int _x, int _y, unsigned char r, unsigned char g, unsigned char b) {
 	if (vbeEnabled) {
-		*(vbeFramebuffer + _x * vbeAlpha + vbeAlpha - 3 + _y * VBE_WIDTH * vbeAlpha) = b;
-		*(vbeFramebuffer + _x * vbeAlpha + vbeAlpha - 2 + _y * VBE_WIDTH * vbeAlpha) = g;
-		*(vbeFramebuffer + _x * vbeAlpha + vbeAlpha - 1 + _y * VBE_WIDTH * vbeAlpha) = r;
+		*(vbeFramebuffer + _x * vbeAlpha + rOffset + _y * VBE_WIDTH * vbeAlpha) = r;
+		*(vbeFramebuffer + _x * vbeAlpha + gOffset + _y * VBE_WIDTH * vbeAlpha) = g;
+		*(vbeFramebuffer + _x * vbeAlpha + bOffset + _y * VBE_WIDTH * vbeAlpha) = b;
 	}
 	else {
 		_x /= 2;
@@ -65,6 +68,9 @@ void initvga() {
 		vbeAlpha = 4;
 	else
 		vbeAlpha = 3;
+	rOffset = *(unsigned char*)(0x2200 + 6) / 8;
+	gOffset = *(unsigned char*)(0x2200 + 7) / 8;
+	bOffset = *(unsigned char*)(0x2200 + 8) / 8;
 
 	if (vbeEnabled) {
 		vbeFramebuffer = (unsigned char*)(*(unsigned int*)0x2202);
