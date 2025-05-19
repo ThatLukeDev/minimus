@@ -1,4 +1,5 @@
 #include "ioutils.h"
+#include "font.h"
 
 extern void getvgafont();
 
@@ -14,8 +15,6 @@ unsigned char rOffset = 1;
 unsigned char gOffset = 2;
 unsigned char bOffset = 3;
 unsigned char* vbeFramebuffer = (unsigned char*)0x0;
-
-unsigned char* font = (unsigned char*)0x1100; // defined in bootloader/main.asm
 
 void drawpixel(int _x, int _y, unsigned char r, unsigned char g, unsigned char b) {
 	if (vbeEnabled) {
