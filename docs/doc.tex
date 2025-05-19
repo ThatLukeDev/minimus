@@ -582,8 +582,9 @@ int 0x10		; set vga mode
 The code below gets the font from the VGA card. This
 is so I did not have to store my own.
 
-The code is taken mostly from this OsDev page\cite{get vga font},
-due to the fact that I figured it was mostly copy paste anyway.
+This code is now not included, and a font has been hard-
+coded into Minimus, due to the fact that VGA Font return
+is no longer supported on numerous devices.
 
 \begin{verbatim}
 bootloader/main.asm
@@ -847,6 +848,18 @@ a20waitr:
 	ret
 
 skipa20:
+\end{minted}
+
+This code has since been replaced with the Fast A20 function,
+which is not supported on all systems, but is mostly a standard.
+
+\begin{verbatim}
+bootloader/main.asm
+\end{verbatim}
+\begin{minted}[linenos,frame=single,breaklines]{nasm}
+in al, 0x92
+or al, 2
+out 0x92, al
 \end{minted}
 
 \subsection{Loading the Kernel}

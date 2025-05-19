@@ -189,6 +189,7 @@ jmp (gdt_code - gdt_start):bits32code	; stall cpu and flush all cache (as moving
 [bits 32]
 bits32code:
 
+; fast a20
 in al, 0x92
 or al, 2
 out 0x92, al
