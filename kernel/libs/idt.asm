@@ -70,7 +70,7 @@ gdt_code:
 	dw 0xffff	; segment limit
 	db 0,0,0	; segment base
 	db 0b10011010	; flags (see wiki)
-	db 0b11001111	; 4b flags (see wiki) + seg limit
+	db 0b10001111	; 4b flags (see wiki) + seg limit
 	db 0		; segment base
 gdt_data:
 	dw 0xffff	; segment limit
@@ -81,6 +81,23 @@ gdt_data:
 gdt_end:
 	dw gdt_end - gdt_start - 1	; limit
 	dd gdt_start			; addr (actually 24 bit, 8 ignored)
+pgdt_start:
+	dq 0		; null byte start
+pgdt_code:
+	dw 0xffff	; segment limit
+	db 0,0,0	; segment base
+	db 0b10011010	; flags (see wiki)
+	db 0b11001111	; 4b flags (see wiki) + seg limit
+	db 0		; segment base
+pgdt_data:
+	dw 0xffff	; segment limit
+	db 0,0,0	; segment base
+	db 0b10010010	; flags (see wiki)
+	db 0b11001111	; 4b flags (see wiki) + seg limit
+	db 0		; segment base
+pgdt_end:
+	dw pgdt_end - pgdt_start - 1	; limit
+	dd pgdt_start			; addr (actually 24 bit, 8 ignored)
 stack1:
 	dd 0
 stack2:
@@ -95,8 +112,6 @@ inttest:
 	mov [stack1], eax
 	mov eax, ebp
 	mov [stack2], eax
-
-	xchg bx, bx
 
 	cli
 
@@ -118,7 +133,9 @@ bits16:
 	xor eax, 1 ; get rid of protected mode
 	mov cr0, eax
 
+[bits 32]
 	jmp 0x8:farjmp
+[bits 16]
 
 farjmp:
 	mov sp, 0x7050		; top of stack
@@ -135,18 +152,18 @@ farjmp:
 
 	sti
 
-[bits 32]
-	xchg bx, bx
-[bits 16]
-
 	cli
 
+	lgdt [pgdt_end]
+
 	mov eax, cr0
-	xor eax, 1 ; get back of protected mode
+	or eax, 1 ; get back of protected mode
 	mov cr0, eax
 
-[bits 32]
+	jmp 0x8:farjmplong
 
+[bits 32]
+farjmplong:
 	mov esp, [stack1]	; top of stack
 	mov ebp, [stack2]	; bottom of stack
 

@@ -21,6 +21,7 @@ void main() {
 	initclock();
 	initfs();
 
+	__asm__ volatile ("xchgw %bx, %bx");
 	inttest();
 
 	printf("Welcome to Minimus! Type 'help' for a list of commands\n");
