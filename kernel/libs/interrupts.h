@@ -13,4 +13,6 @@ extern void initidt();
 
 extern void interrupthandler(unsigned char interrupt);
 
+extern void inttest();
+
 #endif

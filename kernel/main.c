@@ -21,6 +21,8 @@ void main() {
 	initclock();
 	initfs();
 
+	inttest();
+
 	printf("Welcome to Minimus! Type 'help' for a list of commands\n");
 
 	while (1) {

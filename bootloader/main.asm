@@ -19,6 +19,8 @@ jne $$			; if all sectors arent read, loop
 
 jmp gdt_after
 
+times 0x20 - ($-$$) db 0
+
 ; segment descriptor (https://en.wikipedia.org/wiki/Segment_descriptor) (reverse order)
 gdt_start:
 	dq 0		; null byte start
