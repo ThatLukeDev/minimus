@@ -144,10 +144,6 @@ bits16:
 	jmp (gdt_code - gdt_start):(getout - (gdt_code - gdt_start) * 16)
 
 getout:
-	sub [moderetaddr], WORD (gdt_code - gdt_start) * 16
-	jmp [moderetaddr]
-
-procmode:
 	mov sp, 0x7050		; top of stack
 	mov bp, sp		; bottom of stack
 
@@ -162,6 +158,10 @@ procmode:
 
 	sti
 
+	sub [moderetaddr], WORD (gdt_code - gdt_start) * 16
+	jmp [moderetaddr]
+
+procmode:
 	cli
 
 	lgdt [pgdt_end]
