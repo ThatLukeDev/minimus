@@ -2,7 +2,11 @@ global initidtasm
 global interrupthandler
 global idtdescriptor
 global idtaddr
-global inttest
+
+global realmode
+global procmode
+
+global moderetaddr
 
 section .data
 
@@ -102,10 +106,12 @@ stack1:
 	dd 0
 stack2:
 	dd 0
+moderetaddr:
+	dd 0
 real_idt:
 	dw 0x3ff
 	dd 0
-inttest:
+realmode:
 	pusha
 
 	mov eax, esp
@@ -117,7 +123,7 @@ inttest:
 
 	lgdt [gdt_end]
 
-	jmp 0x8:bits16
+	jmp (gdt_code - gdt_start):bits16
 
 [bits 16]
 bits16:
@@ -131,13 +137,17 @@ bits16:
 
 	mov eax, cr0
 	xor eax, 1 ; get rid of protected mode
+	and eax, ~(1 << 2)
+	or eax, 1 << 5
 	mov cr0, eax
 
-[bits 32]
-	jmp 0x8:farjmp
-[bits 16]
+	jmp (gdt_code - gdt_start):(getout - (gdt_code - gdt_start) * 16)
 
-farjmp:
+getout:
+	sub [moderetaddr], WORD (gdt_code - gdt_start) * 16
+	jmp [moderetaddr]
+
+procmode:
 	mov sp, 0x7050		; top of stack
 	mov bp, sp		; bottom of stack
 
@@ -160,7 +170,7 @@ farjmp:
 	or eax, 1 ; get back of protected mode
 	mov cr0, eax
 
-	jmp 0x8:farjmplong
+	jmp (gdt_code - gdt_start):farjmplong
 
 [bits 32]
 farjmplong:
@@ -173,4 +183,4 @@ farjmplong:
 
 	sti
 
-	ret
+	jmp [moderetaddr]

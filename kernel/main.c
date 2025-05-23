@@ -11,6 +11,7 @@
 #include "file.h"
 #include "graphics.h"
 #include "image.h"
+#include "diskbak.h"
 
 void main() {
 	initheap();
@@ -21,8 +22,7 @@ void main() {
 	initclock();
 	initfs();
 
-	__asm__ volatile ("xchgw %bx, %bx");
-	inttest();
+	diskbak();
 
 	printf("Welcome to Minimus! Type 'help' for a list of commands\n");
 
