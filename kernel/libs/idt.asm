@@ -177,6 +177,13 @@ farjmplong:
 	mov esp, [stack1]	; top of stack
 	mov ebp, [stack2]	; bottom of stack
 
+	mov ax, gdt_data - gdt_start
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	mov ss, ax
+
 	popa
 
 	call initidtasm

@@ -22,6 +22,11 @@ void main() {
 	initclock();
 	initfs();
 
+	pak_sect = 1;
+	pak_buffer = (int)malloc(512);
+	pak_lba_lower = 0;
+	pak_lba_upper = 0;
+	pak_rwx = 0;
 	diskbak();
 
 	printf("Welcome to Minimus! Type 'help' for a list of commands\n");

@@ -4,6 +4,12 @@ extern moderetaddr
 
 global diskbak
 
+global pak_sect
+global pak_buffer
+global pak_lba_lower
+global pak_lba_upper
+global pak_rwx
+
 section .text
 
 pak_size:
@@ -12,13 +18,13 @@ pak_null:
 db 0
 pak_sect:
 dw 1
-bak_buffer:
+pak_buffer:
 dd 0
-bak_lba_lower:
+pak_lba_lower:
 dd 0
-bak_lba_upper:
+pak_lba_upper:
 dd 0
-bak_rwx:
+pak_rwx:
 db 0
 diskbak:
 	mov [moderetaddr], WORD reel
@@ -28,7 +34,7 @@ reel:
 	; extended mode lba bios func int 0x13
 	mov si, pak_size
 	mov ah, 0x42
-	or ah, [bak_rwx]
+	or ah, [pak_rwx]
 	mov dl, 0x80
 	int 0x13
 
