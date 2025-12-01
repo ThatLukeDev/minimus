@@ -35,6 +35,8 @@ int main() {
 
 		printf("Edits or creates a file\n");
 
+		printf("\nCTRL W/S to save\nCTRL Q/C to quit\nCTRL X to save and quit");
+
 		return -1;
 	}
 
@@ -49,8 +51,9 @@ int main() {
 	char* filestore = malloc(filestorelen);
 	filestore[0] = '0';
 	memcpy(filestore + 1, filename, filestorelen - 1);
+	filestore[filestorelen - 1] = 0;
 
-	char* buf = fileRead(filestore);
+	char* buf = fileRead(filename);
 	unsigned long bufSize = 0;
 	if (buf) {
 		bufSize = strlen(buf);
@@ -62,6 +65,7 @@ int main() {
 
 	showConsoleOutput(0);
 	clrscr();
+	printf("%s", buf);
 
 	char iterpollkeyboard = 1;
 
@@ -71,15 +75,18 @@ int main() {
 				continue;
 			prevKeyStates[i] = keyStates[i];
 
-			if (!keyStates[i])
+			if (keyStates[i])
 				continue;
 
 			char asciicode = scancodelookup[i];
+			if (i == SC_ENTER)
+				asciicode = '\n';
 			if (!asciicode)
 				continue;
 
 			if (!keyStates[SC_CTRL]) {
 				if (i == SC_W || i == SC_S || i == SC_X) {
+					fileDelete(filename);
 					fileWrite(filestore, buf, strlen(buf) + 1);
 				}
 				if (i == SC_Q || i == SC_C || i == SC_X) {
@@ -126,10 +133,20 @@ int main() {
 			buf[buflen] = (char)asciicode;
 			buf[buflen+1] = '\0';
 
-			clrscr();
-			printf("%s", buf);
+			if (asciicode == '\n') {
+				printf("\n");
+			}
+			else {
+				putc(asciicode);
+			}
 		}
 	}
+
+	free(prevKeyStates);
+	free(filename);
+	free(filestore);
+	free(buf);
+	free(args);
 
 	clrscr();
 	showConsoleOutput(1);
