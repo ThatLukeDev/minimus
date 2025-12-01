@@ -236,10 +236,11 @@ void idt83() {
 	addKeyboardHook((void*)*(unsigned int*)0x1000);
 }
 
-// removeKeyboardHook(void*()) -> void
+// removeKeyboardHook(void*()) -> char* 
 extern unsigned int _idt84;
 void idt84() {
 	removeKeyboardHook((void*)*(unsigned int*)0x1000);
+	*(unsigned int*)0x1000 = (unsigned int)keyStates;
 }
 
 extern void initidtasm();

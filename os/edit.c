@@ -37,16 +37,36 @@ int main() {
 
 		return -1;
 	}
-	char* filename = args;
 
-	showConsoleOutput(0);
-	clrscr();
 	char* keyStates = getKeyStates();
 	char* prevKeyStates = malloc(128);
 	memcpy(prevKeyStates, keyStates, 128);
 
-	while (1) {
-		for (int i = 0; i < 128; i++) {
+	char* filename = malloc(strlen(args));
+	memcpy(filename, args, strlen(args));
+
+	int filestorelen = strlen(filename) + 2;
+	char* filestore = malloc(filestorelen);
+	filestore[0] = '0';
+	memcpy(filestore + 1, filename, filestorelen - 1);
+
+	char* buf = fileRead(filestore);
+	unsigned long bufSize = 0;
+	if (buf) {
+		bufSize = strlen(buf);
+	}
+	else {
+		bufSize = 32;
+		buf = malloc(32);
+	}
+
+	showConsoleOutput(0);
+	clrscr();
+
+	char iterpollkeyboard = 1;
+
+	while (iterpollkeyboard) {
+		for (int i = 0; i < 64; i++) {
 			if (prevKeyStates[i] == keyStates[i])
 				continue;
 			prevKeyStates[i] = keyStates[i];
@@ -59,7 +79,12 @@ int main() {
 				continue;
 
 			if (!keyStates[SC_CTRL]) {
-
+				if (i == SC_W || i == SC_S || i == SC_X) {
+					fileWrite(filestore, buf, strlen(buf) + 1);
+				}
+				if (i == SC_Q || i == SC_C || i == SC_X) {
+					iterpollkeyboard = 0;
+				}
 
 				continue;
 			}
@@ -93,9 +118,21 @@ int main() {
 					asciicode = '+';
 			}
 
-			putc(asciicode);
+			if (strlen(buf) > bufSize - 2) {
+				bufSize *= 2;
+				realloc(buf, bufSize);
+			}
+			unsigned long buflen = strlen(buf);
+			buf[buflen] = (char)asciicode;
+			buf[buflen+1] = '\0';
+
+			clrscr();
+			printf("%s", buf);
 		}
 	}
+
+	clrscr();
+	showConsoleOutput(1);
 
 	return 0;
 }

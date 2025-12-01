@@ -123,5 +123,6 @@ extern char scancodetoascii[256];
 
 extern void addKeyboardHook(void (*func)(char));
 extern void removeKeyboardHook(void (*func)(char));
+extern char* getKeyStates();
 
 #endif

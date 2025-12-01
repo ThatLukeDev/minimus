@@ -23,7 +23,17 @@ char scancodetoascii[256] = {
 };
 
 void addKeyboardHook(void (*func)(char)) {
+	*(unsigned int*)0x1000 = (unsigned int)func;
+	__asm__ volatile ("int $0x53");
 }
 
 void removeKeyboardHook(void (*func)(char)) {
+	*(void**)(0x1000) = (void*)func;
+	__asm__ volatile ("int $0x54");
+}
+
+char* getKeyStates() {
+	*(void**)(0x1000) = 0;
+	__asm__ volatile ("int $0x54");
+	return *(char**)0x1000;
 }
