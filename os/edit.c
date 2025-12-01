@@ -44,7 +44,7 @@ int main() {
 	char* prevKeyStates = malloc(128);
 	memcpy(prevKeyStates, keyStates, 128);
 
-	char* filename = malloc(strlen(args));
+	char* filename = malloc(strlen(args) + 1);
 	memcpy(filename, args, strlen(args));
 
 	int filestorelen = strlen(filename) + 2;
@@ -81,6 +81,14 @@ int main() {
 			char asciicode = scancodelookup[i];
 			if (i == SC_ENTER)
 				asciicode = '\n';
+			if (!keyStates[SC_BACK]) {
+				unsigned long buflen = strlen(buf);
+				buf[buflen - 1] = '\0';
+				clrscr();
+				printf("%s", buf);
+
+				continue;
+			}
 			if (!asciicode)
 				continue;
 

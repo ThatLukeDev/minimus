@@ -20,7 +20,7 @@ struct filePage* fileDescriptor(char* filename) {
 		if (!strcmp((char*)(&(ptr->name)+1), filename)) {
 			return ptr;
 		}
-		*((unsigned char*)&ptr) += strlen(&(ptr->name)) + filePageSize;
+		ptr = (struct filePage*)((unsigned char*)ptr + strlen(&(ptr->name)) + filePageSize);
 	}
 
 	return (struct filePage*)0;
@@ -70,7 +70,7 @@ void fileWrite(char* filename, unsigned char* buffer, unsigned long size) {
 
 	while (descriptor->address) {
 		descaddr = descriptor->address + descriptor->size;
-		*((unsigned char*)&descriptor) += strlen(&(descriptor->name)) + filePageSize;
+		descriptor = (struct filePage*)((unsigned char*)descriptor + strlen(&(descriptor->name)) + filePageSize);
 	}
 
 	descriptor->address = descaddr;
@@ -94,7 +94,7 @@ char** fileList() {
 		wordList = realloc(wordList, sizeTrack);
 		wordList[sizeTrack / sizeof(void*) - 2] = &(ptr->name)+1;
 		wordList[sizeTrack / sizeof(void*) - 1] = 0;
-		*((unsigned char*)&ptr) += strlen(&(ptr->name)) + filePageSize;
+		ptr = (struct filePage*)((unsigned char*)ptr + strlen(&(ptr->name)) + filePageSize);
 	}
 
 	return wordList;
