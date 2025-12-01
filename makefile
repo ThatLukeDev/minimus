@@ -32,4 +32,5 @@ bin:
 clean:
 	cd kernel/libs && make clean
 	cd file && make clean
+	cd crosscompiler && make clean
 	rm bin/*

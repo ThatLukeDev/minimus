@@ -12,3 +12,4 @@ bin:
 .PHONY: clean
 clean:
 	rm bin/*
+	rm files/1*
