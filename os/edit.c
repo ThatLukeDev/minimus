@@ -3,6 +3,10 @@
 #include "console.h"
 #include "keyboard.h"
 #include "memory.h"
+#include "graphics.h"
+
+#define CHAR_WIDTH 8
+#define CHAR_HEIGHT 16
 
 int main() {
 	char scancodelookup[256] = {
@@ -62,10 +66,23 @@ int main() {
 		bufSize = 32;
 		buf = malloc(32);
 	}
+	int x = 0;
+	int y = 0;
 
 	showConsoleOutput(0);
 	clrscr();
-	printf("%s", buf);
+	for (int i = 0; i < strlen(buf); i++) {
+		if (buf[i] == '\n') {
+			y++;
+			x = 0;
+		}
+		else {
+			int display = (char)buf[i];
+			drawtext((char*)&display, x * CHAR_WIDTH, y * CHAR_HEIGHT, 1, 255, 255, 255);
+
+			x++;
+		}
+	}
 
 	char iterpollkeyboard = 1;
 
@@ -83,9 +100,19 @@ int main() {
 				asciicode = '\n';
 			if (!keyStates[SC_BACK]) {
 				unsigned long buflen = strlen(buf);
-				buf[buflen - 1] = '\0';
-				clrscr();
-				printf("%s", buf);
+				if (buf[buflen - 1] == '\n') {
+					y--;
+					int count = 2;
+					for (; buf[buflen - count] != '\n' && buflen - count > 0; count++) {
+					}
+					x = count - 2;
+				}
+				else {
+					x--;
+					drawfill(x * CHAR_WIDTH, y * CHAR_HEIGHT, (x + 1) * CHAR_WIDTH, (y + 1) * CHAR_HEIGHT, 0, 0, 0);
+				}
+				if (buflen > 0)
+					buf[buflen - 1] = '\0';
 
 				continue;
 			}
@@ -142,10 +169,14 @@ int main() {
 			buf[buflen+1] = '\0';
 
 			if (asciicode == '\n') {
-				printf("\n");
+				y++;
+				x = 0;
 			}
 			else {
-				putc(asciicode);
+				int display = (char)asciicode;
+				drawtext((char*)&display, x * CHAR_WIDTH, y * CHAR_HEIGHT, 1, 255, 255, 255);
+
+				x++;
 			}
 		}
 	}
