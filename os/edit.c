@@ -39,7 +39,7 @@ int main() {
 
 		printf("Edits or creates a file\n");
 
-		printf("\nCTRL W/S to save\nCTRL Q/C to quit\nCTRL X to save and quit");
+		printf("\nCTRL W/S to save\nCTRL Q/C to quit\nCTRL X to save and quit\n");
 
 		return -1;
 	}

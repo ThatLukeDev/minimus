@@ -1,0 +1,3 @@
+++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]           initializes the tape
+>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.   produces "Hello World!" output
+,[.,]                                                       echoes whatever is in the input
