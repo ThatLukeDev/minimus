@@ -30,7 +30,11 @@ int main() {
 	int ptr = 0;
 
 	for (int i = 0; i < strlen(code); i++) {
+		if (!keyStates[SC_CTRL] && !keyStates[SC_C])
+			return -1;
+
 		ptr = ((ptr % TAPE_SIZE) + TAPE_SIZE) % TAPE_SIZE;
+
 		if (code[i] == '+')
 			tape[ptr]++;
 		if (code[i] == '-')
