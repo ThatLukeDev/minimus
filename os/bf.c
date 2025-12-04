@@ -37,25 +37,37 @@ int main() {
 
 		if (code[i] == '+')
 			tape[ptr]++;
-		if (code[i] == '-')
+		else if (code[i] == '-')
 			tape[ptr]--;
-		if (code[i] == '<')
+		else if (code[i] == '<')
 			ptr--;
-		if (code[i] == '>')
+		else if (code[i] == '>')
 			ptr++;
-		if (code[i] == ',')
+		else if (code[i] == ',')
 			tape[ptr] = getc();
-		if (code[i] == '.')
-			putc(tape[ptr]);
-		if (code[i] == '[') {
+		else if (code[i] == '.')
+			if (tape[ptr] == '\n')
+				printf("\n");
+			else
+				putc(tape[ptr]);
+		else if (code[i] == '[') {
 			if (tape[ptr] == 0) {
 				for (int count = 1; count > 0; i++) {
-					if (tape[i+1] == '[')
+					if (code[i+1] == '[')
 						count++;
-					if (tape[i+1] == ']')
+					if (code[i+1] == ']')
 						count--;
 				}
 			}
+		}
+		else if (code[i] == ']') {
+			for (int count = 1; count > 0; i--) {
+				if (code[i-1] == ']')
+					count++;
+				if (code[i-1] == '[')
+					count--;
+			}
+			i--;
 		}
 	}
 
