@@ -56,7 +56,6 @@ void main() {
 		}
 
 		free(files);
-
 		free(input);
 	}
 }

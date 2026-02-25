@@ -47,10 +47,6 @@ struct memchunk* m_memchunkstartfreesegment(struct memchunk* check) {
 int free(void* ptr) {
 	struct memchunk* check = (void*)ptr - SIZEOF_memchunk;
 
-	if ((check->prev && check->prev->next != check) || (check->next && check->next->prev != check)) {
-		return 1;
-	}
-
 	check->occupied = 0;
 
 	check = m_memchunkstartfreesegment(check);
