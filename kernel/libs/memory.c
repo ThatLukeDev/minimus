@@ -6,6 +6,7 @@ struct memchunk {
 	unsigned long size;
 	char occupied;
 };
+#define SIZEOF_memchunk 32
 
 struct memchunk* heap;
 void initheap() {
@@ -17,10 +18,10 @@ void initheap() {
 void* malloc(unsigned int size) {
 	struct memchunk* check = heap;
 	do {
-		if (check->size > size + 16 && !check->occupied) {
-			struct memchunk* nextchunk = (struct memchunk*)(check + size + 16);
+		if (check->size > size + SIZEOF_memchunk && !check->occupied) {
+			struct memchunk* nextchunk = (struct memchunk*)((void*)check + size + SIZEOF_memchunk);
 
-			nextchunk->size = check->size - size - 16;
+			nextchunk->size = check->size - size - SIZEOF_memchunk;
 			nextchunk->prev = check;
 			nextchunk->next = check->next;
 			nextchunk->occupied = 0;
@@ -29,7 +30,7 @@ void* malloc(unsigned int size) {
 			check->size = size;
 			check->occupied = 1;
 
-			return (void*)check + 16;
+			return (void*)check + SIZEOF_memchunk;
 		}
 
 		check = check->next;
@@ -44,7 +45,7 @@ struct memchunk* m_memchunkstartfreesegment(struct memchunk* check) {
 }
 
 int free(void* ptr) {
-	struct memchunk* check = ptr - 16;
+	struct memchunk* check = (void*)ptr - SIZEOF_memchunk;
 
 	if ((check->prev && check->prev->next != check) || (check->next && check->next->prev != check)) {
 		return 1;
@@ -64,10 +65,22 @@ int free(void* ptr) {
 }
 
 void* realloc(void* ptr, unsigned int size) {
-	struct memchunk* check = ptr - 16;
-	if (check->next && check->next->size >= size - check->size) { // 16 bit excluded as it is on both sides
-		check->size += check->next->size;
-		check->next = check->next->next;
+	struct memchunk* check = (void*)ptr - SIZEOF_memchunk;
+	if (check->next && check->next->size >= size - check->size && !check->next->occupied) { // 16 bit excluded as it is on both sides
+		check->size += size - check->size;
+
+		struct memchunk* replace = (void*)check + size + SIZEOF_memchunk;
+
+		struct memchunk* tmpprev = check;
+		struct memchunk* tmpnext = check->next->next;
+		unsigned long tmpsize = check->next->size - size + check->size;
+		replace->prev = tmpprev;
+		replace->next = tmpnext;
+		replace->size = tmpsize;
+		replace->occupied = 0;
+
+		check->next = replace;
+
 		return ptr;
 	}
 
