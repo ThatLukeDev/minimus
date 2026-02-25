@@ -29,7 +29,7 @@ void* malloc(unsigned int size) {
 			check->size = size;
 			check->occupied = 1;
 
-			return check + 16;
+			return (void*)check + 16;
 		}
 
 		check = check->next;
