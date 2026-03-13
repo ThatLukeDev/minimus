@@ -243,6 +243,14 @@ void idt84() {
 	*(unsigned int*)0x1000 = (unsigned int)keyStates;
 }
 
+#include "clock.h"
+
+// getticks() -> long
+extern unsigned int _idt85;
+void idt85() {
+	*(unsigned long*)0x1000 = (unsigned long)ticks;
+}
+
 extern void initidtasm();
 void initidt() {
 	initpic();
@@ -282,6 +290,7 @@ void initidt() {
 
 	idthead(83, 83)
 	idthead(84, 84)
+	idthead(85, 85)
 
 	initidtasm();
 }
