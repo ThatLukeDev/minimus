@@ -71,7 +71,7 @@ void initkeyboard() {
 	for (int i = 0; i < 256; i++)
 		keyboardHooks[i] = 0;
 	addPicFunc(1, keyStateChanged);
-	for (int i = 0; i < 64; i++) {
+	for (int i = 0; i < 128; i++) {
 		keyStates[i] = 1;
 	}
 }
