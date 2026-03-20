@@ -3,6 +3,8 @@
 #include "console.h"
 #include "keyboard.h"
 #include "clock.h"
+#include "file.h"
+#include "strutils.h"
 
 struct vec2 {
 	int x;
@@ -24,6 +26,10 @@ struct vec2 {
 #define BALL_SPEED 5
 
 #define FPS 30
+
+#define LOSE_SCALE 32
+
+#define SAVE_FILE "ponghighscore.dat"
 
 int main() {
 	struct vec2 ball = { PAD + PADDLE_WIDTH, HEIGHT / 2 };
@@ -102,9 +108,35 @@ int main() {
 
 	clrscr();
 
-	printf("Score: %d", bounces);
+	char* highscoreFile = fileRead(SAVE_FILE);
 
-	drawtext("You have lost!", 0, HEIGHT / 2, 32, 255, 255, 255);
+	int filestorelen = strlen(SAVE_FILE) + 2;
+	char* filestore = malloc(filestorelen);
+	filestore[0] = '0';
+	memcpy(filestore + 1, SAVE_FILE, filestorelen - 1);
+	filestore[filestorelen - 1] = 0;
+
+	int highscore = bounces;
+
+	if (highscoreFile) {
+		int oldhighscore = *(unsigned int*)highscoreFile;
+		if (oldhighscore > highscore)
+			highscore = oldhighscore;
+	}
+
+	char* buf = malloc(5);
+	*(unsigned int*)buf = highscore;
+	*((unsigned char*)buf + 4) = 0;
+	fileDelete(SAVE_FILE);
+	fileWrite(filestore, (void*)&highscore, 5);
+	free(highscoreFile);
+	free(buf);
+	free(filestore);
+
+	printf("Score: %d\n", bounces);
+	printf("Highscore: %d\n", highscore);
+
+	drawtext("You have lost!", (WIDTH - (LOSE_SCALE + 16) / 2 * 14) / 2, (HEIGHT - (LOSE_SCALE + 16)) / 2, LOSE_SCALE, 255, 255, 255);
 
 	getc();
 
