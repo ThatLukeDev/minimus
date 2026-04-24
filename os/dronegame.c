@@ -181,6 +181,13 @@ struct vector3 rotateZ(struct vector3 in, double t) {
 	return out;
 }
 
+#define WIDTH 640
+#define HEIGHT 480
+#define FOVx 0.5
+#define FOVy 0.5
+#define SPD 1.0
+#define SPDt 0.2
+
 int main() {
 	char* args = *(char**)0x1000;
 	if (!strcmp(args, "-h")) {
@@ -203,7 +210,6 @@ int main() {
 	struct vector3 orientation = { 0, 0, 0 };
 
 	while (iterpollkeyboard) {
-
 		for (int i = 0; i < 64; i++) {
 			if (prevKeyStates[i] == keyStates[i])
 				continue;
@@ -219,34 +225,34 @@ int main() {
 
 			if (i == SC_W) {
 				if (keyStates[SC_W]) {
-					velocity.y += 1;
+					velocity.y += SPD;
 				}
 				else {
-					velocity.y -= 1;
+					velocity.y -= SPD;
 				}
 			}
 			if (i == SC_S) {
 				if (keyStates[SC_S]) {
-					velocity.y -= 1;
+					velocity.y -= SPD;
 				}
 				else {
-					velocity.y += 1;
+					velocity.y += SPD;
 				}
 			}
 			if (i == SC_A) {
 				if (keyStates[SC_A]) {
-					velocity.x += 1;
+					velocity.x += SPD;
 				}
 				else {
-					velocity.x -= 1;
+					velocity.x -= SPD;
 				}
 			}
 			if (i == SC_D) {
 				if (keyStates[SC_D]) {
-					velocity.x -= 1;
+					velocity.x -= SPD;
 				}
 				else {
-					velocity.x += 1;
+					velocity.x += SPD;
 				}
 			}
 		}
@@ -257,9 +263,23 @@ int main() {
 
 		vector3 direction = { 0, 1, 0 };
 
-		direction = rotateX(direction, 0);
-		direction = rotateY(direction, 0);
-		direction = rotateZ(direction, 0);
+		for (int x = 0; x < WIDTH; x++) {
+			for (int y = 0; y < HEIGHT; y++) {
+				struct vector3 direction = {
+					(x - WIDTH / 2) * FOVx / WIDTH,
+					(HEIGHT / 2 - y) * FOVy / HEIGHT,
+					1.0
+				};
+
+				direction = rotateX(direction, orientation.x);
+				direction = rotateY(direction, orientation.y);
+				direction = rotateZ(direction, orientation.z);
+
+				double brightness = trace(position, direction, objs, lights);
+
+				drawpixel(x, y, (int)(clamp(brightness, 0.0, 1.0) * 255));
+			}
+		}
 	}
 
 	free(prevKeyStates);
