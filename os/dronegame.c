@@ -48,7 +48,7 @@ int factorial(int x) {
 double sin(double x) {
 	double result = 0;
 
-	for (int i = 1; i < 20; i+=2) {
+	for (int i = 1; i < 12; i+=2) {
 		result += (double)pow(x, i) / factorial(i) * pow(-1, i/2);
 	}
 
@@ -58,7 +58,7 @@ double sin(double x) {
 double cos(double x) {
 	double result = 0;
 
-	for (int i = 0; i < 20; i+=2) {
+	for (int i = 0; i < 12; i+=2) {
 		result += (double)pow(x, i) / factorial(i) * pow(-1, i/2);
 	}
 
