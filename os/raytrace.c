@@ -16,22 +16,23 @@ struct sphere {
 	double r;
 };
 
-// fast inverse square root algorithm
-// https://en.wikipedia.org/wiki/Fast_inverse_square_root
-float isqrt(float x) {
-	float x2 = x * 0.5f;
-
-	long i = *(long*)&x;
-	i = 0x5f3759df - (i >> 1);
-
-	x = *(float*)&i;
-	x *= (1.5f - (x2 * x * x));
-
-	return x;
-}
-
+#define SQRT_ACCURACY 0.001
 double sqrt(double x) {
-	return 1.0 / isqrt((float)x);
+	double low = 0;
+	double high = x;
+
+	double mid = (low + high) / 2.0;
+
+	while (low - high > SQRT_ACCURACY || high - low > SQRT_ACCURACY) {
+		mid = (low + high) / 2.0;
+		double test = mid*mid;
+		if (test < x)
+			low = mid;
+		if (test > x)
+			high = mid;
+	}
+
+	return mid;
 }
 
 double pow(double x, int n) {
