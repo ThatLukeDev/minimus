@@ -242,7 +242,7 @@ struct sphere parseObj(char* in) {
 	return out;
 }
 
-#define DEFAULT_ARGS "S0,0,5,1 S0,-1001,0,1000 L5,5,5,50 L-5,5,5,10"
+#define DEFAULT_ARGS "S0,0,5,1 S0,-1001,0,1000 L5,5,5,20 L-5,20,0,20"
 #define WIDTH 640
 #define HEIGHT 480
 #define FOV 1.0
