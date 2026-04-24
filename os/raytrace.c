@@ -89,7 +89,7 @@ double intersects(struct vector3 origin, struct vector3 direction, struct sphere
 
 	double a = direction.x*direction.x + direction.y*direction.y + direction.z*direction.z;
 	double b = 2 * (direction.x * SminusO.x + direction.y * SminusO.y + direction.z * SminusO.z);
-	double c = SminusO.x * SminusO.x + SminusO.y * SminusO.y + SminusO.z * SminusO.z - obj.r;
+	double c = SminusO.x * SminusO.x + SminusO.y * SminusO.y + SminusO.z * SminusO.z - obj.r * obj.r;
 
 	double discriminant = b*b - 4*a*c;
 
@@ -102,6 +102,7 @@ double intersects(struct vector3 origin, struct vector3 direction, struct sphere
 double trace(struct vector3 origin, struct vector3 direction, struct sphere* objs, struct sphere* lights) {
 	char foundObj = 0;
 	double lowestDist = 9999999999.0;
+	int foundObjIdx = 0;
 
 	for (int i = 0; objs[i].r != 0; i++) {
 		double distance = intersects(origin, direction, objs[i]);
@@ -109,11 +110,11 @@ double trace(struct vector3 origin, struct vector3 direction, struct sphere* obj
 		if (distance < lowestDist && distance > 0) {
 			lowestDist = distance;
 			foundObj = 1;
+			foundObjIdx = i;
 		}
 	}
 
 	if (foundObj) {
-			return 1.0; // TODO
 		struct vector3 pos = {
 			origin.x + direction.x * lowestDist,
 			origin.y + direction.y * lowestDist,
@@ -124,12 +125,24 @@ double trace(struct vector3 origin, struct vector3 direction, struct sphere* obj
 
 		for (int i = 0; lights[i].r != 0; i++) {
 			struct vector3 disp = {
-				origin.x - lights[i].pos.x,
-				origin.y - lights[i].pos.y,
-				origin.z - lights[i].pos.z,
+				lights[i].pos.x - pos.x,
+				lights[i].pos.y - pos.y,
+				lights[i].pos.z - pos.z,
 			};
 			double distance = sqrt(disp.x*disp.x + disp.y*disp.y + disp.z*disp.z);
-			illumination += lights[i].r;// / (distance * distance);
+
+			char blocked = 0;
+			for (int j = 0; objs[j].r != 0; j++) {
+				double distanceBlocking = intersects(pos, direction, objs[j]);
+
+				if (distanceBlocking > 0.01) {
+					blocked = 1;
+				}
+			}
+
+			if (!blocked) {
+				illumination += lights[i].r / (distance * distance);
+			}
 
 			return illumination;
 		}
@@ -178,14 +191,6 @@ struct vector3 rotateZ(struct vector3 in, double t) {
 	return out;
 }
 
-#define WIDTH 640
-#define HEIGHT 480
-#define FOV 0.5
-#define FOVx FOV
-#define FOVy FOV * HEIGHT / WIDTH
-#define SPD 1.0
-#define SPDt 0.2
-
 double parseNumber(char* in) {
 	double out = 0;
 
@@ -230,6 +235,15 @@ struct sphere parseObj(char* in) {
 	return out;
 }
 
+#define DEFAULT_ARGS "S0,0,5,1 S0,-1001,0,1000 L5,5,5,50"
+#define WIDTH 640
+#define HEIGHT 480
+#define FOV 1.0
+#define FOVx FOV
+#define FOVy FOV * HEIGHT / WIDTH
+#define SPD 1.0
+#define SPDt 0.2
+
 int main() {
 	char* args = *(char**)0x1000;
 	if (args && !strcmp(args, "-h")) {
@@ -248,7 +262,7 @@ int main() {
 
 	if (!args) {
 		args = malloc(512);
-		args = "S0,0,20,5 L0,0,10,100";
+		args = DEFAULT_ARGS;
 	}
 
 	for (int i = 0; i < strlen(args); i++) {
@@ -288,39 +302,6 @@ int main() {
 
 				continue;
 			}
-
-			if (i == SC_W) {
-				if (keyStates[SC_W]) {
-					velocity.y += SPD;
-				}
-				else {
-					velocity.y -= SPD;
-				}
-			}
-			if (i == SC_S) {
-				if (keyStates[SC_S]) {
-					velocity.y -= SPD;
-				}
-				else {
-					velocity.y += SPD;
-				}
-			}
-			if (i == SC_A) {
-				if (keyStates[SC_A]) {
-					velocity.x += SPD;
-				}
-				else {
-					velocity.x -= SPD;
-				}
-			}
-			if (i == SC_D) {
-				if (keyStates[SC_D]) {
-					velocity.x -= SPD;
-				}
-				else {
-					velocity.x += SPD;
-				}
-			}
 		}
 
 		position.x += velocity.x;
@@ -329,8 +310,8 @@ int main() {
 
 		struct vector3 direction = { 0, 1, 0 };
 
-		for (int x = 0; x < WIDTH; x++) {
-			for (int y = 0; y < HEIGHT; y++) {
+		for (int y = 0; y < HEIGHT; y+=2) {
+			for (int x = 0; x < WIDTH; x+=2) {
 				struct vector3 direction = {
 					(x - WIDTH / 2) * FOVx / WIDTH,
 					(HEIGHT / 2 - y) * FOVy / HEIGHT,
@@ -347,7 +328,6 @@ int main() {
 				double pxl = (int)(clamp(brightness, 0.0, 1.0) * 255);
 
 				drawpixel(x, y, pxl, pxl, pxl);
-				if (x % 4 == 0 && y % 4 == 0) drawpixel(x, y, 255, 0, 0); // TODO
 			}
 		}
 	}
