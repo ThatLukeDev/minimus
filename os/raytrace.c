@@ -134,17 +134,17 @@ double trace(struct vector3 origin, struct vector3 direction, struct sphere* obj
 			for (int j = 0; objs[j].r != 0; j++) {
 				double distanceBlocking = intersects(pos, disp, objs[j]);
 
-				if (distanceBlocking > 0.01) {
+				if (distanceBlocking > 0.001 && j != foundObjIdx) {
 					blocked = 1;
 				}
-			}
 
-			if (!blocked) {
-				illumination += lights[i].r / (distance * distance);
+				if (!blocked) {
+					illumination += lights[i].r / (distance * distance);
+				}
 			}
-
-			return illumination;
 		}
+
+		return illumination;
 	}
 
 	return 0.0;
@@ -242,7 +242,7 @@ struct sphere parseObj(char* in) {
 	return out;
 }
 
-#define DEFAULT_ARGS "S0,0,5,1 S0,-1001,0,1000 L5,5,5,50"
+#define DEFAULT_ARGS "S0,0,5,1 S0,-1001,0,1000 L5,5,5,50 L-5,5,5,10"
 #define WIDTH 640
 #define HEIGHT 480
 #define FOV 1.0
@@ -255,9 +255,12 @@ int main() {
 	char* args = *(char**)0x1000;
 	if (args && !strcmp(args, "-h")) {
 		printf("USAGE: raytrace [OBJECT(S)?]\n");
-
+		printf("OBJECT: (S/L)X,Y,Z,R\n");
+		printf("S -> Sphere, L -> Light\n");
 		printf("EXAMPLE: raytrace S0.0,-2.4,3.6,2.3 L0,0,10,100\n");
-		printf("S -> Sphere, L -> Light\n\n");
+		printf("Leaving no arguments results in: ");
+		printf(DEFAULT_ARGS);
+		printf("\n\n");
 
 		return -1;
 	}
