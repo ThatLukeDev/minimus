@@ -140,6 +140,45 @@ double trace(struct vector3 origin, struct vector3 direction, struct sphere* obj
 	return 0.0;
 }
 
+struct vector3 rotateX(struct vector3 in, double t) {
+	double sint = sin(t);
+	double cost = cos(t);
+
+	struct vector3 out = {
+		in.x,
+		cost * in.y - sint * in.z,
+		sint * in.y + cost * in.z
+	};
+
+	return out;
+}
+
+struct vector3 rotateY(struct vector3 in, double t) {
+	double sint = sin(t);
+	double cost = cos(t);
+
+	struct vector3 out = {
+		cost * in.x + sint * in.z,
+		in.y,
+		-sint * in.x + cost * in.z
+	};
+
+	return out;
+}
+
+struct vector3 rotateZ(struct vector3 in, double t) {
+	double sint = sin(t);
+	double cost = cos(t);
+
+	struct vector3 out = {
+		cost * in.x - sint * in.y,
+		sint * in.x + cost * in.y,
+		in.z
+	};
+
+	return out;
+}
+
 int main() {
 	for (int i = 0; i < 10; i++) {
 		printf("sin(%d) -> %d\n", i, (int)(sin(i) * 10000));
