@@ -4,7 +4,6 @@
 #include "keyboard.h"
 #include "memory.h"
 #include "graphics.h"
-#include "vga.h"
 
 struct vector3 {
 	double x;
@@ -151,44 +150,52 @@ double trace(struct vector3 origin, struct vector3 direction, struct sphere* obj
 	return 0.0;
 }
 
+struct vector3 matrixTransform(struct vector3 in,
+	double ix, double iy, double iz,
+	double jx, double jy, double jz,
+	double kx, double ky, double kz)
+{
+	struct vector3 out = {
+		ix * in.x + iy * in.y + iz * in.z,
+		jx * in.x + jy * in.y + jz * in.z,
+		kx * in.x + ky * in.y + kz * in.z
+	};
+
+	return out;
+}
+
 // rotation matrices
 struct vector3 rotateX(struct vector3 in, double t) {
 	double sint = sin(t);
 	double cost = cos(t);
 
-	struct vector3 out = {
-		in.x,
-		cost * in.y - sint * in.z,
-		sint * in.y + cost * in.z
-	};
-
-	return out;
+	return matrixTransform(in,
+		1, 0, 0,
+		0, cost, -sint,
+		0, sint, cost
+	);
 }
 
 struct vector3 rotateY(struct vector3 in, double t) {
 	double sint = sin(t);
 	double cost = cos(t);
 
-	struct vector3 out = {
-		cost * in.x + sint * in.z,
-		in.y,
-		-sint * in.x + cost * in.z
-	};
-
-	return out;
+	return matrixTransform(in,
+		cost, 0, sint,
+		0, 1, 0,
+		-sint, 0, cost
+	);
 }
 
 struct vector3 rotateZ(struct vector3 in, double t) {
 	double sint = sin(t);
 	double cost = cos(t);
 
-	struct vector3 out = {
-		cost * in.x - sint * in.y,
-		sint * in.x + cost * in.y,
-		in.z
-	};
-
-	return out;
+	return matrixTransform(in,
+		cost, -sint, 0,
+		sint, cost, 0,
+		0, 0, 1
+	);
 }
 
 double parseNumber(char* in) {
@@ -283,38 +290,19 @@ int main() {
 	showConsoleOutput(0);
 	clrscr();
 
-	char iterpollkeyboard = 1;
-
 	struct vector3 position = { 0, 0, 0 };
-	struct vector3 velocity = { 0, 0, 0 };
 	struct vector3 orientation = { 0, 0, 0 };
 
-	while (iterpollkeyboard) {
-		for (int i = 0; i < 64; i++) {
-			if (prevKeyStates[i] == keyStates[i])
-				continue;
-			prevKeyStates[i] = keyStates[i];
-
-			if (!keyStates[i] && !keyStates[SC_CTRL]) {
-				if (i == SC_Q || i == SC_C || i == SC_X) {
-					iterpollkeyboard = 0;
-				}
-
-				continue;
+	for (int square = 256; square > 0; square >>= 1) { // renders in a square pattern instead of line by line
+		for (int y = 0; y < HEIGHT; y+=square) {
+			if (!keyStates[SC_CTRL] && !keyStates[SC_C]) {
+				break;
 			}
-		}
 
-		position.x += velocity.x;
-		position.y += velocity.y;
-		position.z += velocity.z;
-
-		struct vector3 direction = { 0, 1, 0 };
-
-		for (int y = 0; y < HEIGHT; y+=2) {
-			for (int x = 0; x < WIDTH; x+=2) {
+			for (int x = 0; x < WIDTH; x+=square) {
 				struct vector3 direction = {
-					(x - WIDTH / 2) * FOVx / WIDTH,
-					(HEIGHT / 2 - y) * FOVy / HEIGHT,
+					(x + square / 2 - WIDTH / 2) * FOVx / WIDTH,
+					(HEIGHT / 2 - (y + square / 2)) * FOVy / HEIGHT,
 					1.0
 				};
 
@@ -327,10 +315,13 @@ int main() {
 				double brightness = trace(position, direction, objs, lights);
 				double pxl = (int)(clamp(brightness, 0.0, 1.0) * 255);
 
-				drawpixel(x, y, pxl, pxl, pxl);
+				drawfill(x, y, x + square - 1, y + square - 1, pxl, pxl, pxl);
 			}
 		}
 	}
+
+	printf("Press any key to continue...");
+	getc();
 
 	free(prevKeyStates);
 	free(args);
