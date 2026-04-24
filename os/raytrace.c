@@ -5,6 +5,17 @@
 #include "memory.h"
 #include "graphics.h"
 
+#define DEFAULT_ARGS "S0,0,5,1 S0,-1001,0,1000 L5,5,5,20 L-5,20,0,20"
+
+#define SQRT_ACCURACY 0.001
+#define PI 3.14159265358979
+
+#define FOV 1.0
+#define WIDTH 640
+#define HEIGHT 480
+#define FOVx FOV
+#define FOVy FOV * HEIGHT / WIDTH
+
 struct vector3 {
 	double x;
 	double y;
@@ -16,7 +27,6 @@ struct sphere {
 	double r;
 };
 
-#define SQRT_ACCURACY 0.001
 double sqrt(double x) {
 	double low = 0;
 	double high = x;
@@ -165,6 +175,46 @@ struct vector3 matrixTransform(struct vector3 in,
 	return out;
 }
 
+double parseNumber(char* in) {
+	double out = 0;
+
+	int decimal = 0;
+	int sign = 1;
+	if (in[0] == '-') {
+		sign = -1;
+		in++;
+	}
+
+	for (int i = 0; in[i] >= '0' && in[i] <= '9' || in[i] == '.'; i++) {
+		if (decimal > 0)
+			decimal *= 10;
+		if (in[i] == '.') {
+			decimal = 1;
+		}
+		else {
+			out *= 10;
+			out += in[i] - 48;
+		}
+	}
+
+	if (decimal == 0)
+		decimal = 1;
+
+	return sign * out / decimal;
+}
+
+struct vector3 parseVector(char* in) {
+	struct vector3 out = { 0, 0, 0 };
+
+	out.x = parseNumber(++in);
+	for (; *in != ','; in++);
+	out.y = parseNumber(++in);
+	for (; *in != ','; in++);
+	out.z = parseNumber(++in);
+
+	return out;
+}
+
 // rotation matrices
 struct vector3 rotateX(struct vector3 in, double t) {
 	double sint = sin(t);
@@ -199,32 +249,16 @@ struct vector3 rotateZ(struct vector3 in, double t) {
 	);
 }
 
-double parseNumber(char* in) {
-	double out = 0;
+struct vector3 rotate(struct vector3 in, struct vector3 orientation) { // degrees, not radians
+	orientation.x *= PI / 180;
+	orientation.y *= PI / 180;
+	orientation.z *= PI / 180;
 
-	int decimal = 0;
-	int sign = 1;
-	if (in[0] == '-') {
-		sign = -1;
-		in++;
-	}
+	in = rotateX(in, orientation.x);
+	in = rotateY(in, orientation.y);
+	in = rotateZ(in, orientation.z);
 
-	for (int i = 0; in[i] >= '0' && in[i] <= '9' || in[i] == '.'; i++) {
-		if (decimal > 0)
-			decimal *= 10;
-		if (in[i] == '.') {
-			decimal = 1;
-		}
-		else {
-			out *= 10;
-			out += in[i] - 48;
-		}
-	}
-
-	if (decimal == 0)
-		decimal = 1;
-
-	return sign * out / decimal;
+	return in;
 }
 
 struct sphere parseObj(char* in) {
@@ -243,21 +277,13 @@ struct sphere parseObj(char* in) {
 	return out;
 }
 
-#define DEFAULT_ARGS "S0,0,5,1 S0,-1001,0,1000 L5,5,5,20 L-5,20,0,20"
-#define WIDTH 640
-#define HEIGHT 480
-#define FOV 1.0
-#define FOVx FOV
-#define FOVy FOV * HEIGHT / WIDTH
-#define SPD 1.0
-#define SPDt 0.2
-
 int main() {
 	char* args = *(char**)0x1000;
 	if (args && !strcmp(args, "-h")) {
 		printf("USAGE: raytrace [OBJECT(S)?]\n");
 		printf("OBJECT: (S/L)X,Y,Z,R\n");
 		printf("S -> Sphere, L -> Light\n");
+		printf("P -> Position, O -> Orientation\n");
 		printf("EXAMPLE: raytrace S0.0,-2.4,3.6,2.3 L0,0,10,100\n");
 		printf("Leaving no arguments results in: ");
 		printf(DEFAULT_ARGS);
@@ -276,6 +302,9 @@ int main() {
 		args = DEFAULT_ARGS;
 	}
 
+	struct vector3 position = { 0, 0, 0 };
+	struct vector3 orientation = { 0, 0, 0 };
+
 	for (int i = 0; i < strlen(args); i++) {
 		if (args[i] == 'S') {
 			objs = realloc(objs, (objsLen+1)*sizeof(struct sphere));
@@ -285,7 +314,23 @@ int main() {
 			lights = realloc(lights, (lightsLen+1)*sizeof(struct sphere));
 			lights[lightsLen++] = parseObj(args + i);
 		}
+		if (args[i] == 'P') {
+			position = parseVector(args + i);
+		}
+		if (args[i] == 'O') {
+			orientation = parseVector(args + i);
+		}
 	}
+
+	// identity matrix
+	struct vector3 xrotated = { 1, 0, 0 };
+	struct vector3 yrotated = { 0, 1, 0 };
+	struct vector3 zrotated = { 0, 0, 1 };
+
+	// pre calculate
+	xrotated = rotate(xrotated, orientation);
+	yrotated = rotate(yrotated, orientation);
+	zrotated = rotate(zrotated, orientation);
 
 	char* keyStates = getKeyStates();
 	char* prevKeyStates = malloc(128);
@@ -293,9 +338,6 @@ int main() {
 
 	showConsoleOutput(0);
 	clrscr();
-
-	struct vector3 position = { 0, 0, 0 };
-	struct vector3 orientation = { 0, 0, 0 };
 
 	for (int square = 256; square > 0; square >>= 1) { // renders in a square pattern instead of line by line
 		for (int y = 0; y < HEIGHT; y+=square) {
@@ -310,11 +352,11 @@ int main() {
 					1.0
 				};
 
-				/*
-				direction = rotateX(direction, orientation.x);
-				direction = rotateY(direction, orientation.y);
-				direction = rotateZ(direction, orientation.z);
-				*/
+				direction = matrixTransform(direction,
+					xrotated.x, yrotated.x, zrotated.x,
+					xrotated.y, yrotated.y, zrotated.y,
+					xrotated.z, yrotated.z, zrotated.z
+				);
 
 				double brightness = trace(position, direction, objs, lights);
 				double pxl = (int)(clamp(brightness, 0.0, 1.0) * 255);
