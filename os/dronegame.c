@@ -55,6 +55,7 @@ int factorial(int x) {
 	return x * factorial(x - 1);
 }
 
+// taylor series expansions
 double sin(double x) {
 	double result = 0;
 
@@ -140,6 +141,7 @@ double trace(struct vector3 origin, struct vector3 direction, struct sphere* obj
 	return 0.0;
 }
 
+// rotation matrices
 struct vector3 rotateX(struct vector3 in, double t) {
 	double sint = sin(t);
 	double cost = cos(t);
@@ -180,12 +182,6 @@ struct vector3 rotateZ(struct vector3 in, double t) {
 }
 
 int main() {
-	for (int i = 0; i < 10; i++) {
-		printf("sin(%d) -> %d\n", i, (int)(sin(i) * 10000));
-		printf("cos(%d) -> %d\n", i, (int)(cos(i) * 10000));
-	}
-	while (1);
-
 	char* args = *(char**)0x1000;
 	if (!strcmp(args, "-h")) {
 		printf("USAGE: dronegame [OBJECTS?]\n");
@@ -202,16 +198,18 @@ int main() {
 
 	char iterpollkeyboard = 1;
 
+	struct vector3 position = { 0, 0, 0 };
+	struct vector3 velocity = { 0, 0, 0 };
+	struct vector3 orientation = { 0, 0, 0 };
+
 	while (iterpollkeyboard) {
+
 		for (int i = 0; i < 64; i++) {
 			if (prevKeyStates[i] == keyStates[i])
 				continue;
 			prevKeyStates[i] = keyStates[i];
 
-			if (keyStates[i])
-				continue;
-
-			if (!keyStates[SC_CTRL]) {
+			if (!keyStates[i] && !keyStates[SC_CTRL]) {
 				if (i == SC_Q || i == SC_C || i == SC_X) {
 					iterpollkeyboard = 0;
 				}
@@ -219,8 +217,49 @@ int main() {
 				continue;
 			}
 
-			printf("%x ", i);
+			if (i == SC_W) {
+				if (keyStates[SC_W]) {
+					velocity.y += 1;
+				}
+				else {
+					velocity.y -= 1;
+				}
+			}
+			if (i == SC_S) {
+				if (keyStates[SC_S]) {
+					velocity.y -= 1;
+				}
+				else {
+					velocity.y += 1;
+				}
+			}
+			if (i == SC_A) {
+				if (keyStates[SC_A]) {
+					velocity.x += 1;
+				}
+				else {
+					velocity.x -= 1;
+				}
+			}
+			if (i == SC_D) {
+				if (keyStates[SC_D]) {
+					velocity.x -= 1;
+				}
+				else {
+					velocity.x += 1;
+				}
+			}
 		}
+
+		position.x += velocity.x;
+		position.y += velocity.y;
+		position.z += velocity.z;
+
+		vector3 direction = { 0, 1, 0 };
+
+		direction = rotateX(direction, 0);
+		direction = rotateY(direction, 0);
+		direction = rotateZ(direction, 0);
 	}
 
 	free(prevKeyStates);
