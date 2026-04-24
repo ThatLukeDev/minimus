@@ -4,6 +4,7 @@
 #include "keyboard.h"
 #include "memory.h"
 #include "graphics.h"
+#include "vga.h"
 
 struct vector3 {
 	double x;
@@ -14,11 +15,6 @@ struct vector3 {
 struct sphere {
 	struct vector3 pos;
 	double r;
-};
-
-struct light {
-	struct vector3 pos;
-	double lum;
 };
 
 // fast inverse square root algorithm
@@ -103,7 +99,7 @@ double intersects(struct vector3 origin, struct vector3 direction, struct sphere
 		return (-b - sqrt(discriminant)) / (2*a);
 }
 
-double trace(struct vector3 origin, struct vector3 direction, struct sphere* objs, struct light* lights) {
+double trace(struct vector3 origin, struct vector3 direction, struct sphere* objs, struct sphere* lights) {
 	char foundObj = 0;
 	double lowestDist = 9999999999.0;
 
@@ -117,6 +113,7 @@ double trace(struct vector3 origin, struct vector3 direction, struct sphere* obj
 	}
 
 	if (foundObj) {
+			return 1.0; // TEMP
 		struct vector3 pos = {
 			origin.x + direction.x * lowestDist,
 			origin.y + direction.y * lowestDist,
@@ -125,14 +122,14 @@ double trace(struct vector3 origin, struct vector3 direction, struct sphere* obj
 
 		double illumination = 0.0;
 
-		for (int i = 0; lights[i].lum != 0; i++) {
+		for (int i = 0; lights[i].r != 0; i++) {
 			struct vector3 disp = {
 				origin.x - lights[i].pos.x,
 				origin.y - lights[i].pos.y,
 				origin.z - lights[i].pos.z,
 			};
 			double distance = sqrt(disp.x*disp.x + disp.y*disp.y + disp.z*disp.z);
-			illumination += lights[i].lum / (distance * distance);
+			illumination += lights[i].r;// / (distance * distance);
 
 			return illumination;
 		}
@@ -188,12 +185,80 @@ struct vector3 rotateZ(struct vector3 in, double t) {
 #define SPD 1.0
 #define SPDt 0.2
 
+double parseNumber(char* in) {
+	double out = 0;
+
+	int decimal = 0;
+	int sign = 1;
+	if (in[0] == '-') {
+		sign = -1;
+		in++;
+	}
+
+	for (int i = 0; in[i] >= '0' && in[i] <= '9' || in[i] == '.'; i++) {
+		if (decimal > 0)
+			decimal *= 10;
+		if (in[i] == '.') {
+			decimal = 1;
+		}
+		else {
+			out *= 10;
+			out += in[i] - 48;
+		}
+	}
+
+	if (decimal == 0)
+		decimal = 1;
+
+	return sign * out / decimal;
+}
+
+struct sphere parseObj(char* in) {
+	struct sphere out = { 0, 0, 0, 0 };
+
+	if (in[0] != 'S' && in[0] != 'L')
+		return out;
+	out.pos.x = parseNumber(++in);
+	for (; *in != ','; in++);
+	out.pos.y = parseNumber(++in);
+	for (; *in != ','; in++);
+	out.pos.z = parseNumber(++in);
+	for (; *in != ','; in++);
+	out.r = parseNumber(++in);
+
+	return out;
+}
+
 int main() {
 	char* args = *(char**)0x1000;
-	if (!strcmp(args, "-h")) {
+	if (args && !strcmp(args, "-h")) {
 		printf("USAGE: dronegame [OBJECTS?]\n");
 
+		printf("EXAMPLE: dronegame S0.0,-2.4,3.6,2.3 L0,0,10,100\n");
+		printf("S -> Sphere, L -> Light\n\n");
+
 		return -1;
+	}
+
+	struct sphere* objs = malloc(sizeof(struct sphere));
+	int objsLen = 0;
+	struct sphere* lights = malloc(sizeof(struct sphere));
+	int lightsLen = 0;
+
+	if (!args) {
+		args = malloc(512);
+		args = "S0,10,0,5 L0,0,10,100";
+	}
+
+	for (int i = 0; i < strlen(args); i++) {
+		if (args[i] == 'S') {
+			objs = realloc(objs, (objsLen+1)*sizeof(struct sphere));
+			objs[objsLen++] = parseObj(args + i);
+		}
+		if (args[i] == 'L') {
+			lights = realloc(lights, (lightsLen+1)*sizeof(struct sphere));
+			lights[lightsLen++] = parseObj(args + i);
+		}
 	}
 
 	char* keyStates = getKeyStates();
@@ -261,7 +326,7 @@ int main() {
 		position.y += velocity.y;
 		position.z += velocity.z;
 
-		vector3 direction = { 0, 1, 0 };
+		struct vector3 direction = { 0, 1, 0 };
 
 		for (int x = 0; x < WIDTH; x++) {
 			for (int y = 0; y < HEIGHT; y++) {
@@ -271,19 +336,25 @@ int main() {
 					1.0
 				};
 
+				/*
 				direction = rotateX(direction, orientation.x);
 				direction = rotateY(direction, orientation.y);
 				direction = rotateZ(direction, orientation.z);
+				*/
 
 				double brightness = trace(position, direction, objs, lights);
+				double pxl = (int)(clamp(brightness, 0.0, 1.0) * 255);
 
-				drawpixel(x, y, (int)(clamp(brightness, 0.0, 1.0) * 255));
+				drawpixel(x, y, pxl, pxl, pxl);
+				if (x % 4 == 0) drawpixel(x, y, 255, 0, 0);
 			}
 		}
 	}
 
 	free(prevKeyStates);
 	free(args);
+	free(objs);
+	free(lights);
 
 	clrscr();
 	showConsoleOutput(1);
