@@ -133,7 +133,7 @@ double trace(struct vector3 origin, struct vector3 direction, struct sphere* obj
 
 			char blocked = 0;
 			for (int j = 0; objs[j].r != 0; j++) {
-				double distanceBlocking = intersects(pos, direction, objs[j]);
+				double distanceBlocking = intersects(pos, disp, objs[j]);
 
 				if (distanceBlocking > 0.01) {
 					blocked = 1;
