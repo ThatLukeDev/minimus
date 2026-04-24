@@ -5,7 +5,34 @@
 #include "memory.h"
 #include "graphics.h"
 
+struct vector3 {
+	double x;
+	double y;
+	double z;
+};
+
+// fast inverse square root algorithm
+// https://en.wikipedia.org/wiki/Fast_inverse_square_root
+float isqrt(float x) {
+	float x2 = x * 0.5f;
+
+	long i = *(long*)&x;
+	i = 0x5f3759df - (i >> 1);
+
+	x = *(float*)&i;
+	x *= (1.5f - (x2 * x * x));
+
+	return x;
+}
+
+double sqrt(double x) {
+	return 1.0 / isqrt((float)x);
+}
+
 int main() {
+	printf("%d", (int)sqrt(25));
+	while (1);
+
 	char* args = *(char**)0x1000;
 	if (!strcmp(args, "-h")) {
 		printf("USAGE: dronegame [OBJECTS?]\n");
