@@ -113,7 +113,7 @@ double trace(struct vector3 origin, struct vector3 direction, struct sphere* obj
 	}
 
 	if (foundObj) {
-			return 1.0; // TEMP
+			return 1.0; // TODO
 		struct vector3 pos = {
 			origin.x + direction.x * lowestDist,
 			origin.y + direction.y * lowestDist,
@@ -180,8 +180,9 @@ struct vector3 rotateZ(struct vector3 in, double t) {
 
 #define WIDTH 640
 #define HEIGHT 480
-#define FOVx 0.5
-#define FOVy 0.5
+#define FOV 0.5
+#define FOVx FOV
+#define FOVy FOV * HEIGHT / WIDTH
 #define SPD 1.0
 #define SPDt 0.2
 
@@ -232,9 +233,9 @@ struct sphere parseObj(char* in) {
 int main() {
 	char* args = *(char**)0x1000;
 	if (args && !strcmp(args, "-h")) {
-		printf("USAGE: dronegame [OBJECTS?]\n");
+		printf("USAGE: raytrace [OBJECT(S)?]\n");
 
-		printf("EXAMPLE: dronegame S0.0,-2.4,3.6,2.3 L0,0,10,100\n");
+		printf("EXAMPLE: raytrace S0.0,-2.4,3.6,2.3 L0,0,10,100\n");
 		printf("S -> Sphere, L -> Light\n\n");
 
 		return -1;
@@ -247,7 +248,7 @@ int main() {
 
 	if (!args) {
 		args = malloc(512);
-		args = "S0,10,0,5 L0,0,10,100";
+		args = "S0,0,20,5 L0,0,10,100";
 	}
 
 	for (int i = 0; i < strlen(args); i++) {
@@ -346,7 +347,7 @@ int main() {
 				double pxl = (int)(clamp(brightness, 0.0, 1.0) * 255);
 
 				drawpixel(x, y, pxl, pxl, pxl);
-				if (x % 4 == 0) drawpixel(x, y, 255, 0, 0);
+				if (x % 4 == 0 && y % 4 == 0) drawpixel(x, y, 255, 0, 0); // TODO
 			}
 		}
 	}
